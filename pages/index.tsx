@@ -1,11 +1,10 @@
 /* eslint-disable prettier/prettier */
 import React from "react";
-
-import HomePage from "src/sections/Home/HomePage";
+import EvaluacionesPage from "src/sections/Evaluaciones/Evaluaciones";
 
 const Home: React.FC = () => {
     return (
-        <HomePage />
+        <EvaluacionesPage />
     );
 };
 export default Home;

@@ -1,4 +1,4 @@
-# Qualabs Frontend - Fabricio Dipolito
+# TacuWork Frontend - Fabricio Dipolito
 
 ## Getting Started
 

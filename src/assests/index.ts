@@ -1,4 +1,19 @@
-export { default as ArrowIconPNG } from "./PNG/arrowIcon.png";
-export { default as LightbulbIconPNG } from "./PNG/lightbulbIcon.png";
-export { default as PlusIconPNG } from "./PNG/plusIcon.png";
-export { default as TrashIconPNG } from "./PNG/trashIcon.png";
+/* eslint-disable prettier/prettier */
+export { default as AddButtonPNG } from "./PNG/AddButton.png";
+export { default as AddButtonSelectedPNG } from "./PNG/AddButtonSelected.png";
+export { default as AnalisisIconActivoPNG } from "./PNG/AnalisisIconActivo.png";
+export { default as AnalisisIconInactivoPNG } from "./PNG/AnalisisIconInactivo.png";
+export { default as ColaboradoresIconPNG } from "./PNG/ColaboradoresIcon.png";
+export { default as ColaboradoresIconActivoPNG } from "./PNG/ColaboradoresIconActivo.png";
+export { default as ColaboradoresIconInactivoPNG } from "./PNG/ColaboradoresIconInactivo.png";
+export { default as EvaluacionIconPNG } from "./PNG/EvaluacionIcon.png";
+export { default as EvaluacionIconActivoPNG } from "./PNG/EvaluacionIconActivo.png";
+export { default as EvaluacionIconInactivoPNG } from "./PNG/EvaluacionIconInactivo.png";
+export { default as FilterSelectIconPNG } from "./PNG/FilterSelectIcon.png";
+export { default as GroupFilterSelectIconPNG } from "./PNG/GroupFilterSelectIcon.png";
+export { default as ProyectosIconPNG } from "./PNG/ProyectosIcon.png";
+export { default as ProyectosIconActivoPNG } from "./PNG/ProyectosIconActivo.png";
+export { default as ProyectosIconInactivoPNG } from "./PNG/ProyectosIconInactivo.png";
+export { default as SearchSelectIconPNG } from "./PNG/SearchSelectIcon.png";
+export { default as TacuWorkLoginPNG } from "./PNG/TacuWorkLogin.png";
+export { default as TacuWorkLogoPNG } from "./PNG/TacuWorkLogoPNG.png";

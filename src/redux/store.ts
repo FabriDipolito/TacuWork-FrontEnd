@@ -1,9 +1,21 @@
 import { configureStore } from "@reduxjs/toolkit";
-import usersSlice from "./slices/usersSlice";
+import generalVariableSlice from "./slices/generalVariableSlice";
+import evaluacionesSlice from "./slices/evaluacionesSlice";
+import analisisSlice from "./slices/analisisSlice";
+import colaboradoresSlice from "./slices/colaboradoresSlice";
+import searchBoxSlice from "./slices/searchBoxSlice";
+import modalSlice from "./slices/modalSlice";
+import proyectosSlice from "./slices/proyectosSlice";
 
 const store = configureStore({
   reducer: {
-    users: usersSlice,
+    general: generalVariableSlice,
+    colaborador: colaboradoresSlice,
+    proyecto: proyectosSlice,
+    evaluacion: evaluacionesSlice,
+    searchBox: searchBoxSlice,
+    modal: modalSlice,
+    analisis: analisisSlice,
   },
 });
 
