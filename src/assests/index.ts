@@ -11,6 +11,7 @@ export { default as EvaluacionIconActivoPNG } from "./PNG/EvaluacionIconActivo.p
 export { default as EvaluacionIconInactivoPNG } from "./PNG/EvaluacionIconInactivo.png";
 export { default as FilterSelectIconPNG } from "./PNG/FilterSelectIcon.png";
 export { default as GroupFilterSelectIconPNG } from "./PNG/GroupFilterSelectIcon.png";
+export { default as ParticipantesIconPNG } from "./PNG/ParticipantesIcon.png";
 export { default as ProyectosIconPNG } from "./PNG/ProyectosIcon.png";
 export { default as ProyectosIconActivoPNG } from "./PNG/ProyectosIconActivo.png";
 export { default as ProyectosIconInactivoPNG } from "./PNG/ProyectosIconInactivo.png";

@@ -1,8 +1,44 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { analisisState, PealProps, TrabajadorProps } from "@types";
+import { analisisState, PealProps, ColaboradorProps, DataProps } from "@types";
 
 const initialState: analisisState = {
   linkSelected: "TRABAJADOR",
+  keyArray: [],
+  radarData: [
+    {
+      criterio: "Adaptacion al Cambio",
+    },
+    {
+      criterio: "Habilidades Relacionales",
+    },
+    {
+      criterio: "Comunicacion",
+    },
+    {
+      criterio: "Liderazgo",
+    },
+    {
+      criterio: "Proactividad",
+    },
+    {
+      criterio: "Responsabilidades",
+    },
+    {
+      criterio: "Trabajo en Equipo",
+    },
+    {
+      criterio: "% de Asistencias",
+    },
+    {
+      criterio: "Presencia",
+    },
+    {
+      criterio: "Puntualidad",
+    },
+    {
+      criterio: "Rendimiento Laboral",
+    },
+  ],
   trabajadorSelected: undefined,
   primerPealSelected: undefined,
   segundoPealSelected: undefined,
@@ -18,9 +54,15 @@ export const analisisSlice = createSlice({
     ) => {
       state.linkSelected = action.payload;
     },
+    setRadarData: (state, action: PayloadAction<Array<DataProps>>) => {
+      state.radarData = action.payload;
+    },
+    setRadarKey: (state, action: PayloadAction<Array<string>>) => {
+      state.keyArray = action.payload;
+    },
     setTrabajadorSelected: (
       state,
-      action: PayloadAction<TrabajadorProps | undefined>,
+      action: PayloadAction<ColaboradorProps | undefined>,
     ) => {
       state.trabajadorSelected = action.payload;
     },
@@ -41,6 +83,8 @@ export const analisisSlice = createSlice({
 
 export const {
   setLinkSelected,
+  setRadarData,
+  setRadarKey,
   setTrabajadorSelected,
   setPrimerPealSelected,
   setSegundoPealSelected,

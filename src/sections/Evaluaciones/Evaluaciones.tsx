@@ -31,8 +31,9 @@ import {
   setEvaluacionesHechas,
   setPealSelected,
 } from "@redux/slices/evaluacionesSlice";
-import { evaluacionesPealGET } from "src/services/api/allEvaluacionesPealGET";
+import { evaluacionesPealGET } from "src/services/api/EvaluacionesPealGET";
 import { setActive } from "@redux/slices/modalSlice";
+import { Modal } from "src/components/Modal/Modal";
 
 const EvaluacionesPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -43,6 +44,7 @@ const EvaluacionesPage: React.FC = () => {
   const evaluacionesHechas = useAppSelector(
     (state) => state.evaluacion.evaluacionesHechas,
   );
+  const modalActive = useAppSelector((state) => state.modal.active);
 
   const [hoverButton, setHoverButton] = useState(false);
 
@@ -125,8 +127,11 @@ const EvaluacionesPage: React.FC = () => {
             description={AQUI_ESTAN_TODAS_EVALUACIONES}
           />
         </TextBoxContainer>
-        <SearchBox array={evaluacionesHechas} />
+        <SearchBox array={evaluacionesHechas} type="EVALUACION" />
       </MainCardContainer>
+      {!modalActive || (
+        <Modal type="EVALUACION" peal_id={pealSeleccionado?.id} />
+      )}
     </EvaluacionContainer>
   );
 };

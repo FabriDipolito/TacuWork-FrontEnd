@@ -19,9 +19,11 @@ export const TagContainer = styled("div")<StateTagProps>(({ theme, state }) => {
     paddingRight: "7px",
     borderRadius: "7px",
     backgroundColor:
-      state == "Activo"
+      state == "Activo" || state == "EVALUADO"
         ? StateTagPalette.tag.active.background
-        : StateTagPalette.tag.inactive.background,
+        : state == "PENDIENTE"
+          ? StateTagPalette.tag.pending.background
+          : StateTagPalette.tag.inactive.background,
   };
 });
 
@@ -36,9 +38,11 @@ export const Circle = styled("div")<StateTagProps>(({ theme, state }) => {
     marginRight: "7px",
     border: `1.5px solid ${state == "Activo" ? StateTagPalette.tag.active.circleBorder : StateTagPalette.tag.inactive.circleBorder}`,
     backgroundColor:
-      state == "Activo"
+      state == "Activo" || state == "EVALUADO"
         ? StateTagPalette.tag.active.circle
-        : StateTagPalette.tag.inactive.circle,
+        : state == "PENDIENTE"
+          ? StateTagPalette.tag.pending.circle
+          : StateTagPalette.tag.inactive.circle,
   };
 });
 

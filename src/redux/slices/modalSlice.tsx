@@ -20,6 +20,10 @@ const initialState: modalState = {
   fin: undefined,
   // PROYECTO
   // EVALUACION
+  nombre_evaluacion: undefined,
+  comienzo_evaluacion: undefined,
+  // EVALUACION
+  // PUNTUACION
   adaptacion_cambio: undefined,
   habilidades_relacionales: undefined,
   comunicacion: undefined,
@@ -31,7 +35,7 @@ const initialState: modalState = {
   trabajo_equipo: undefined,
   responsabilidad: undefined,
   rendimiento_laboral: undefined,
-  // EVALUACION
+  // PUNTUACION
 };
 
 export const modalSlice = createSlice({
@@ -54,6 +58,8 @@ export const modalSlice = createSlice({
       state.nombre_peal = undefined;
       state.comienzo = undefined;
       state.fin = undefined;
+      state.nombre_evaluacion = undefined;
+      state.comienzo_evaluacion = undefined;
       state.adaptacion_cambio = undefined;
       state.habilidades_relacionales = undefined;
       state.comunicacion = undefined;
@@ -110,6 +116,17 @@ export const modalSlice = createSlice({
     },
     // PROYECTO
     // EVALUACION
+    setNombreEvaluacion: (state, action: PayloadAction<string | undefined>) => {
+      state.nombre_evaluacion = action.payload;
+    },
+    setComienzoEvaluacion: (
+      state,
+      action: PayloadAction<string | undefined>,
+    ) => {
+      state.comienzo_evaluacion = action.payload;
+    },
+    // EVALUACION
+    // PUNTUACION
     setAdaptacionCambio: (state, action: PayloadAction<number | undefined>) => {
       state.adaptacion_cambio = action.payload;
     },
@@ -152,7 +169,7 @@ export const modalSlice = createSlice({
     ) => {
       state.rendimiento_laboral = action.payload;
     },
-    // EVALUACION
+    // PUNTUACION
   },
 });
 
@@ -176,6 +193,10 @@ export const {
   setFin,
   // PROYECTO
   // EVALUACION
+  setNombreEvaluacion,
+  setComienzoEvaluacion,
+  // EVALUACION
+  // PUNTUACION
   setAdaptacionCambio,
   setHabilidadesRelacionales,
   setComunicacion,
@@ -187,7 +208,7 @@ export const {
   setTrabajoEquipo,
   setResponsabilidad,
   setRendimientoLaboral,
-  // EVALUACION
+  // PUNTUACION
 } = modalSlice.actions;
 
 export default modalSlice.reducer;

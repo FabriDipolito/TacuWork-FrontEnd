@@ -30,6 +30,23 @@ export type EvaluacionProps = {
   peal_id: number,
 };
 
+export type PuntajeProps = {
+  colaborador_id: number,
+  evaluacion_id: number,
+  adaptacion_al_cambio: number | undefined,
+  habilidades_relacionales: number | undefined,
+  comunicacion: number | undefined,
+  liderazgo: number | undefined,
+  proactividad: number | undefined,
+  presencia: number | undefined,
+  puntualidad: number | undefined,
+  porcentaje_asistencia: number | undefined,
+  trabajo_en_equipo: number | undefined,
+  responsabilidades: number | undefined,
+  rendimiento_laboral: number | undefined,
+  [key: string]: number | undefined,
+};
+
 // Props
 
 // Estados
@@ -37,6 +54,8 @@ export type EvaluacionProps = {
 export type generalState = {
   colaboradores: Array<ColaboradorProps> | undefined,
   peales: Array<PealProps> | undefined,
+  evaluaciones: Array<EvaluacionProps> | undefined,
+  puntajes: Array<PuntajeProps> | undefined,
 };
 
 export type colaboradorState = {
@@ -51,6 +70,14 @@ export type proyectoState = {
 export type evaluacionState = {
   pealSelected: PealProps | undefined,
   evaluacionesHechas: Array<EvaluacionProps>,
+};
+
+export type participantesEvaluacionState = {
+  linkSelected: "PARTICIPANTES" | "TABLERO";
+  colaboradorSelected: ColaboradorProps | undefined,
+  pealSelected: PealProps | undefined;
+  evaluacionSelected: EvaluacionProps | undefined,
+  puntajes: Array<PuntajeProps> | undefined,
 };
 
 export type searchBoxState = {
@@ -81,6 +108,10 @@ export type modalState = {
   fin: string | undefined,
   //PROYECTO
   //EVALUACION
+  nombre_evaluacion: string | undefined,
+  comienzo_evaluacion: string | undefined,
+  //EVALUACION
+  //PUNTUACION
   adaptacion_cambio: number | undefined,
   habilidades_relacionales: number | undefined,
   comunicacion: number | undefined,
@@ -92,11 +123,18 @@ export type modalState = {
   trabajo_equipo: number | undefined,
   responsabilidad: number | undefined,
   rendimiento_laboral: number | undefined,
-  //EVALUACION
+  //PUNTUACION
 };
+
+export interface DataProps {
+  criterio: string;
+  [key: string]: any;
+}
 
 export type analisisState = {
   linkSelected: "TRABAJADOR" | "PROYECTO" | "COMPARACION";
+  radarData: Array<DataProps>;
+  keyArray: Array<string>;
   trabajadorSelected: ColaboradorProps | undefined;
   primerPealSelected: PealProps | undefined,
   segundoPealSelected: PealProps | undefined,

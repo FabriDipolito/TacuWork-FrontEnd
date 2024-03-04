@@ -256,7 +256,13 @@ interface TRowProps {
 export const TRow = styled("tr")<TRowProps>(({ theme, subHeader = false }) => {
   return {
     width: "100%",
+    cursor: subHeader ? "default" : "pointer",
     height: subHeader ? "33px" : "58px",
+    ":hover": {
+      backgroundColor: subHeader
+        ? "#F4F4F5"
+        : theme.customPalette.Modal.background,
+    },
   };
 });
 

@@ -23,14 +23,14 @@ export const PealPOST = async (
       return data;
     } else {
       console.error(
-        "Error creating colaborador:",
+        "Error creating peal:",
         response.status,
         response.statusText,
       );
       return null;
     }
   } catch (error) {
-    console.error("Error creating colaborador:", error);
+    console.error("Error creating peal:", error);
     return null;
   }
 };

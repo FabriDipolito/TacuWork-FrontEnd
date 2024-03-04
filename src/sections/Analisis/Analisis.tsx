@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { PowerBIEmbed } from "powerbi-client-react";
-import { models } from "powerbi-client";
+
+import { ResponsiveRadar } from "@nivo/radar";
 import {
   AnalisisContainer,
   HeaderCard,
@@ -20,7 +20,7 @@ import {
 } from "@constants";
 import { pealesGET } from "src/services/api/allPealesGET";
 import { useAppDispatch, useAppSelector } from "@redux/hooks";
-import { ColaboradorProps, PealProps } from "@types";
+import { ColaboradorProps, DataProps, PealProps, PuntajeProps } from "@types";
 import {
   setColaboradores,
   setPeales,
@@ -28,6 +28,8 @@ import {
 import {
   setLinkSelected,
   setPrimerPealSelected,
+  setRadarData,
+  setRadarKey,
   setSegundoPealSelected,
   setTrabajadorSelected,
 } from "@redux/slices/analisisSlice";
@@ -37,9 +39,14 @@ const AnalisisPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const colaboradores = useAppSelector((state) => state.general.colaboradores);
   const peales = useAppSelector((state) => state.general.peales);
+  const evaluaciones = useAppSelector((state) => state.general.evaluaciones);
+  const puntajes = useAppSelector((state) => state.general.puntajes);
+
   const linkSeleccionado = useAppSelector(
     (state) => state.analisis.linkSelected,
   );
+  const radarData = useAppSelector((state) => state.analisis.radarData);
+  const keyArray = useAppSelector((state) => state.analisis.keyArray);
   const trabajadorSeleccionado = useAppSelector(
     (state) => state.analisis.trabajadorSelected,
   );
@@ -49,6 +56,75 @@ const AnalisisPage: React.FC = () => {
   const segundoPealSeleccionado = useAppSelector(
     (state) => state.analisis.segundoPealSelected,
   );
+
+  const data = [
+    {
+      criterio: "Adaptación al Cambio",
+      chardonay: 85,
+      carmenere: 74,
+      syrah: 86,
+    },
+    {
+      criterio: "Habilidades Relacionales",
+      chardonay: 58,
+      carmenere: 99,
+      syrah: 68,
+    },
+    {
+      criterio: "Comunicación",
+      chardonay: 31,
+      carmenere: 70,
+      syrah: 46,
+    },
+    {
+      criterio: "Liderazgo",
+      chardonay: 70,
+      carmenere: 85,
+      syrah: 74,
+    },
+    {
+      criterio: "Proactividad",
+      chardonay: 61,
+      carmenere: 70,
+      syrah: 77,
+    },
+    {
+      criterio: "Responsabilidad",
+      chardonay: 85,
+      carmenere: 74,
+      syrah: 96,
+    },
+    {
+      criterio: "Trabajo en Equipo",
+      chardonay: 58,
+      carmenere: 99,
+      syrah: 68,
+    },
+    {
+      criterio: "% de Asistencias",
+      chardonay: 31,
+      carmenere: 70,
+      syrah: 46,
+    },
+    {
+      criterio: "Presencia",
+      chardonay: 70,
+      carmenere: 85,
+      syrah: 74,
+    },
+    {
+      criterio: "Puntualidad",
+      chardonay: 61,
+      carmenere: 70,
+      syrah: 77,
+    },
+    {
+      criterio: "Rendimiento Laboral",
+      chardonay: 61,
+      carmenere: 70,
+      syrah: 77,
+    },
+  ];
 
   useEffect(() => {
     pealesGET()
@@ -71,6 +147,82 @@ const AnalisisPage: React.FC = () => {
         console.error("Error to obtain data of users:", error);
       });
   }, []);
+
+  useEffect(() => {
+    const puntajesTrabajador = puntajes?.filter(
+      (puntaje) => puntaje.colaborador_id == trabajadorSeleccionado?.id,
+    );
+    const newRadarData = combineRadarDataAndPuntajes(
+      radarData,
+      puntajesTrabajador,
+    );
+    const newKeyArray = puntajesTrabajador
+      ?.filter(
+        (puntaje) =>
+          puntaje.adaptacion_al_cambio &&
+          puntaje.comunicacion &&
+          puntaje.habilidades_relacionales &&
+          puntaje.liderazgo &&
+          puntaje.porcentaje_asistencia &&
+          puntaje.presencia &&
+          puntaje.proactividad &&
+          puntaje.puntualidad &&
+          puntaje.rendimiento_laboral &&
+          puntaje.responsabilidades &&
+          puntaje.trabajo_en_equipo,
+      )
+      ?.map((puntaje) => {
+        return evaluaciones?.find(
+          (evaluacion) => evaluacion.id == puntaje.evaluacion_id,
+        )?.nombre;
+      });
+    dispatch(setRadarData(newRadarData));
+    dispatch(setRadarKey(newKeyArray as string[]));
+  }, [trabajadorSeleccionado]);
+
+  const combineRadarDataAndPuntajes = (
+    data: { criterio: string }[],
+    puntajes: PuntajeProps[] | undefined,
+  ): DataProps[] => {
+    return data.map((item) => {
+      const criterioKey = item.criterio.toLowerCase().replace(/\s+/g, "_");
+
+      const updatedItem: DataProps = { criterio: item.criterio };
+
+      puntajes?.forEach((puntaje) => {
+        if (
+          puntaje.adaptacion_al_cambio &&
+          puntaje.comunicacion &&
+          puntaje.habilidades_relacionales &&
+          puntaje.liderazgo &&
+          puntaje.porcentaje_asistencia &&
+          puntaje.presencia &&
+          puntaje.proactividad &&
+          puntaje.puntualidad &&
+          puntaje.rendimiento_laboral &&
+          puntaje.responsabilidades &&
+          puntaje.trabajo_en_equipo
+        ) {
+          const puntajeKey =
+            item.criterio === "% de Asistencias"
+              ? "porcentaje_asistencia"
+              : Object.keys(puntaje).find((key) => key === criterioKey);
+          const evaluacion = evaluaciones?.find(
+            (evaluacion) => evaluacion.id == puntaje.evaluacion_id,
+          );
+
+          if (puntajeKey && evaluacion) {
+            if (item.criterio === "% de Asistencias")
+              updatedItem[evaluacion.nombre] =
+                (puntaje[puntajeKey] as unknown as number) / 10;
+            else updatedItem[evaluacion.nombre] = puntaje[puntajeKey];
+          }
+        }
+      });
+
+      return updatedItem;
+    });
+  };
 
   return (
     <AnalisisContainer>
@@ -220,12 +372,54 @@ const AnalisisPage: React.FC = () => {
             </>
           )}
         </SubHeaderCard>
-        <iframe
-          title="TrabajadoresTest"
-          width="1140"
-          height="541.25"
-          src="https://app.powerbi.com/reportEmbed?reportId=290e9e77-daf5-4d0b-b629-0d3e2ae5897d&autoAuth=true&ctid=c4fdd762-c795-4c8a-b44b-036035add416"
-        ></iframe>
+        <div
+          style={{
+            width: "450px",
+            height: "400px",
+            borderRadius: "16px",
+            boxShadow: "2px 4px 6px rgba(0, 0, 0, 0.2)",
+          }}
+        >
+          <ResponsiveRadar
+            data={radarData}
+            keys={keyArray}
+            indexBy="criterio"
+            valueFormat=" >-.2f"
+            maxValue={10}
+            margin={{ top: 0, right: 80, bottom: 40, left: 80 }}
+            borderColor={{ from: "color", modifiers: [] }}
+            gridLevels={10}
+            gridLabelOffset={12}
+            dotSize={4}
+            dotColor={{ theme: "background" }}
+            dotBorderWidth={2}
+            dotBorderColor={{ from: "color", modifiers: [] }}
+            colors={{ scheme: "nivo" }}
+            blendMode="multiply"
+            motionConfig="wobbly"
+            legends={[
+              {
+                anchor: "bottom",
+                direction: "row",
+                translateX: -60,
+                translateY: -20,
+                itemWidth: 80,
+                itemHeight: 20,
+                itemTextColor: "#999",
+                symbolSize: 12,
+                symbolShape: "circle",
+                effects: [
+                  {
+                    on: "hover",
+                    style: {
+                      itemTextColor: "#000",
+                    },
+                  },
+                ],
+              },
+            ]}
+          />
+        </div>
       </MainCardContainer>
     </AnalisisContainer>
   );

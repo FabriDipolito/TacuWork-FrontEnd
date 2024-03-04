@@ -6,6 +6,7 @@ import colaboradoresSlice from "./slices/colaboradoresSlice";
 import searchBoxSlice from "./slices/searchBoxSlice";
 import modalSlice from "./slices/modalSlice";
 import proyectosSlice from "./slices/proyectosSlice";
+import participantesEvaluacionSlice from "./slices/participantesEvaluacionSlice";
 
 const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ const store = configureStore({
     colaborador: colaboradoresSlice,
     proyecto: proyectosSlice,
     evaluacion: evaluacionesSlice,
+    participantesEvaluacion: participantesEvaluacionSlice,
     searchBox: searchBoxSlice,
     modal: modalSlice,
     analisis: analisisSlice,
