@@ -38,22 +38,6 @@ export const HeaderCard = styled("div")(({ theme }) => {
   };
 });
 
-export const SubHeaderCard = styled("div")(({ theme }) => {
-  return {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-    backgroundColor: "transparent",
-    height: "52px",
-    gap: "50px",
-    borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
-    borderRadius: "16px 16px 0px 0px",
-    padding: "10px 30px",
-  };
-});
-
 export const SearchBar = styled(Autocomplete)(({ theme }) => {
   return {
     height: "32px",
@@ -108,33 +92,6 @@ export const TextBoxContainer = styled("div")(({ theme }) => {
     width: "100%",
     height: "fit-content",
     padding : "42px 60px",
-  };
-});
-
-interface pageLinkProps {
-  selected?: boolean;
-}
-
-export const PageLink = styled(Typography)<pageLinkProps>(({ theme, selected }) => {
-  const {
-    customTypography: {
-      InterMedium,
-    },
-    customSizes: {
-      pageLinks: pageLinksSize
-    },
-    customPalette: {
-      pageLinks: pageLinksPalette,
-    },
-  } = theme;
-
-  return {
-    borderBottom: selected ? "2px solid #1E1E31" : "0px",
-    cursor: "pointer",
-    fontFamily: InterMedium,
-    fontSize: pageLinksSize.fontSize,
-    fontWeight: pageLinksSize.fontWeight,
-    color: pageLinksPalette.text,
   };
 });
 

@@ -18,15 +18,21 @@ export const options: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
-        // This is where you need to retrieve user data
-        // to verify with credentials
-        // Docs: https://next-auth.js.org/configuration/providers/credentials
-        const user = { id: "42", name: "Admin", password: "admin" };
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/login`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: credentials?.username,
+              password: credentials?.password,
+            }),
+          },
+        );
 
-        if (
-          credentials?.username === user.name &&
-          credentials?.password === user.password
-        ) {
+        const user = await res.json();
+
+        if (res.ok && user) {
           return user;
         } else {
           return null;
@@ -36,6 +42,23 @@ export const options: NextAuthOptions = {
   ],
   pages: {
     signIn: "/auth/login",
-    //signOut: '/auth/logout'
+    signOut: "/auth/logout",
+  },
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log("User signed in:", user);
+      return true;
+    },
+    async redirect({ url, baseUrl }) {
+      return url.startsWith(baseUrl) ? url : baseUrl;
+    },
+    async session({ session, token, user }) {
+      console.log("Session:", session);
+      return session;
+    },
+    async jwt({ token, user, account, profile, isNewUser }) {
+      console.log("JWT token:", token);
+      return token;
+    },
   },
 };

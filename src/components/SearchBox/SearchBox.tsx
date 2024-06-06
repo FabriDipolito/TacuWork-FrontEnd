@@ -1,6 +1,8 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import {
   ColumnContainer,
+  DeleteTrashContainer,
+  EditPencilContainer,
   FilterText,
   Footer,
   FooterText,
@@ -20,11 +22,14 @@ import {
 } from "./styles";
 import Image from "next/image";
 import {
+  EditPencilHoverPNG,
+  EditPencilPNG,
   FilterSelectIconPNG,
   GroupFilterSelectIconPNG,
   SearchSelectIconPNG,
+  TrashDeleteButtonPNG,
 } from "src/assests";
-import { InputAdornment, SelectChangeEvent } from "@mui/material";
+import { Avatar, InputAdornment, SelectChangeEvent } from "@mui/material";
 import {
   A_MOSTRAR,
   BUSCAR,
@@ -36,6 +41,7 @@ import {
   EVALUACION_TAGS,
   FILTRO,
   GRUPO,
+  PARTICIPANTES_EVALUACION_FILTER,
   PARTICIPANTES_EVALUACION_TAGS,
   PROYECTOS,
   PROYECTO_FILTER,
@@ -60,15 +66,43 @@ import {
   setPuntajes,
 } from "@redux/slices/participantesEvaluacionSlice";
 import { useRouter } from "next/router";
+import { setColaboradorPerfil } from "@redux/slices/perfilColaboradoresSlice";
+import { setProyectoPerfil } from "@redux/slices/perfilProyectosSlice";
+import {
+  setActiveDelete,
+  setColaborador,
+  setEvaluacion,
+  setPeal,
+  setPuntaje,
+} from "@redux/slices/modalDeleteSlice";
+import { setEditColaborador } from "@redux/slices/colaboradoresSlice";
+import { setEditProyecto } from "@redux/slices/proyectosSlice";
+import { setEditEvaluacion } from "@redux/slices/evaluacionesSlice";
+import {
+  FaCat,
+  FaDog,
+  FaFish,
+  FaSpider,
+  FaHorse,
+  FaFrog,
+  FaDragon,
+  FaHippo,
+  FaOtter,
+  FaCrow,
+} from "react-icons/fa";
 
 interface SearchBoxProps {
   type?: "COLABORADOR" | "PROYECTO" | "EVALUACION" | "PARTICIPANTESEVALUACION";
   array?: Array<ColaboradorProps> | Array<PealProps> | Array<EvaluacionProps>;
+  participantesProyecto?: boolean;
 }
 
-const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
+const SearchBox: React.FC<SearchBoxProps> = ({
+  type,
+  array,
+  participantesProyecto = false,
+}) => {
   const dispatch = useAppDispatch();
-  const modalActive = useAppSelector((state) => state.modal.active);
   const filter = useAppSelector((state) => state.searchBox.filter);
   const filterSelected = useAppSelector(
     (state) => state.searchBox.filterSelected,
@@ -88,22 +122,54 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
   const [focused, setFocused] = useState(false);
   const router = useRouter();
 
-  const peales = useAppSelector((state) => state.general.peales);
   const colaboradores = useAppSelector((state) => state.general.colaboradores);
+  const peales = useAppSelector((state) => state.general.peales);
+  const evaluaciones = useAppSelector((state) => state.general.evaluaciones);
+  const puntajes = useAppSelector((state) => state.general.puntajes);
   const allPuntajes = useAppSelector((state) => state.general.puntajes);
   const evaluacionSelected = useAppSelector(
     (state) => state.participantesEvaluacion.evaluacionSelected,
   );
+  const icons = [
+    FaCat,
+    FaDog,
+    FaFish,
+    FaSpider,
+    FaHorse,
+    FaFrog,
+    FaDragon,
+    FaHippo,
+    FaOtter,
+    FaCrow,
+  ];
+
+  const romanIcons = [
+    "I",
+    "II",
+    "III",
+    "IV",
+    "V",
+    "VI",
+    "VII",
+    "VIII",
+    "IX",
+    "X",
+    "XI",
+    "XII",
+    "XIII",
+    "XIV",
+    "XV",
+    "XVI",
+  ];
 
   useEffect(() => {
-    dispatch(clearModal());
-  }, [modalActive]);
+    dispatch(setFilterArray(array));
+  }, [array]);
 
   useEffect(() => {
     dispatch(setFilterSelected(undefined));
     dispatch(setGroupFilterSelected(undefined));
     dispatch(setSearchFilterSelected(undefined));
-    dispatch(setFilterArray(array));
     if (type == "COLABORADOR") {
       dispatch(setFilter(COLABORADOR_FILTER));
       dispatch(setGroupFilter(peales?.map((peal) => peal.nombre)));
@@ -115,7 +181,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
       dispatch(setFilter(EVALUACION_FILTER));
     }
     if (type == "PARTICIPANTESEVALUACION")
-      dispatch(setFilter(COLABORADOR_FILTER));
+      dispatch(setFilter(PARTICIPANTES_EVALUACION_FILTER));
   }, []);
 
   useEffect(() => {
@@ -221,12 +287,6 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
             } else {
               return 0;
             }
-          case "Activos":
-            //return a.egresos === "Activo" ? -1 : 1;
-            return 0;
-          case "Inactivos":
-            //return a.egresos !== "Activo" ? -1 : 1;
-            return 0;
           default:
             return 0;
         }
@@ -265,9 +325,119 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
                 new Date(a.comienzo).getTime() - new Date(b.comienzo).getTime()
               );
             case "Evaluados":
-              return 0;
+              if (puntajes) {
+                return puntajes
+                  ?.filter((puntaje) => {
+                    if (
+                      puntaje.adaptacion_al_cambio &&
+                      puntaje.comunicacion &&
+                      puntaje.habilidades_relacionales &&
+                      puntaje.liderazgo &&
+                      puntaje.porcentaje_asistencia &&
+                      puntaje.presencia &&
+                      puntaje.proactividad &&
+                      puntaje.puntualidad &&
+                      puntaje.rendimiento_laboral &&
+                      puntaje.responsabilidades &&
+                      puntaje.trabajo_en_equipo
+                    ) {
+                      if (puntaje.evaluacion_id == b.id) {
+                        return true;
+                      } else {
+                        return false;
+                      }
+                    } else {
+                      return false;
+                    }
+                  })
+                  .length.toString()
+                  .localeCompare(
+                    puntajes
+                      ?.filter((puntaje) => {
+                        if (
+                          puntaje.adaptacion_al_cambio &&
+                          puntaje.comunicacion &&
+                          puntaje.habilidades_relacionales &&
+                          puntaje.liderazgo &&
+                          puntaje.porcentaje_asistencia &&
+                          puntaje.presencia &&
+                          puntaje.proactividad &&
+                          puntaje.puntualidad &&
+                          puntaje.rendimiento_laboral &&
+                          puntaje.responsabilidades &&
+                          puntaje.trabajo_en_equipo
+                        ) {
+                          if (puntaje.evaluacion_id == a.id) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        } else {
+                          return false;
+                        }
+                      })
+                      .length.toString(),
+                  );
+              } else {
+                return 0;
+              }
             case "Falta Evaluar":
-              return 0;
+              if (puntajes) {
+                return puntajes
+                  ?.filter((puntaje) => {
+                    if (
+                      puntaje.adaptacion_al_cambio &&
+                      puntaje.comunicacion &&
+                      puntaje.habilidades_relacionales &&
+                      puntaje.liderazgo &&
+                      puntaje.porcentaje_asistencia &&
+                      puntaje.presencia &&
+                      puntaje.proactividad &&
+                      puntaje.puntualidad &&
+                      puntaje.rendimiento_laboral &&
+                      puntaje.responsabilidades &&
+                      puntaje.trabajo_en_equipo
+                    ) {
+                      if (puntaje.evaluacion_id == a.id) {
+                        return true;
+                      } else {
+                        return false;
+                      }
+                    } else {
+                      return false;
+                    }
+                  })
+                  .length.toString()
+                  .localeCompare(
+                    puntajes
+                      ?.filter((puntaje) => {
+                        if (
+                          puntaje.adaptacion_al_cambio &&
+                          puntaje.comunicacion &&
+                          puntaje.habilidades_relacionales &&
+                          puntaje.liderazgo &&
+                          puntaje.porcentaje_asistencia &&
+                          puntaje.presencia &&
+                          puntaje.proactividad &&
+                          puntaje.puntualidad &&
+                          puntaje.rendimiento_laboral &&
+                          puntaje.responsabilidades &&
+                          puntaje.trabajo_en_equipo
+                        ) {
+                          if (puntaje.evaluacion_id == b.id) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        } else {
+                          return false;
+                        }
+                      })
+                      .length.toString(),
+                  );
+              } else {
+                return 0;
+              }
             case "Actualizados":
               return (
                 new Date(b.ultima_actualizacion).getTime() -
@@ -297,15 +467,115 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
     }
 
     if (type == "PARTICIPANTESEVALUACION") {
-      dispatch(
-        setFilterArray(
-          (array as Array<ColaboradorProps>)?.filter(
-            (colaborador) => colaborador.peal_id == pealParticipantes?.id,
+      if (
+        filterSelected !== undefined ||
+        groupFilterSelected !== undefined ||
+        searchFilterSelected !== undefined
+      ) {
+        (newArray as Array<ColaboradorProps>)?.sort((a, b) => {
+          switch (filterSelected) {
+            case "Nombre de A a Z":
+              return a.nombre.localeCompare(b.nombre);
+            case "Nombre de Z a A":
+              return b.nombre.localeCompare(a.nombre);
+            case "Apellido de A a Z":
+              return a.apellido.localeCompare(b.apellido);
+            case "Apellido de Z a A":
+              return b.apellido.localeCompare(a.apellido);
+            case "Mayor Promedio":
+              const promedioA = calcularPromedioYEstado("PROMEDIO", a);
+              const promedioB = calcularPromedioYEstado("PROMEDIO", b);
+
+              if (promedioA === "-" && promedioB === "-") return 0;
+              if (promedioA === "-") return 1;
+              if (promedioB === "-") return -1;
+              return (
+                (promedioB as unknown as number) -
+                (promedioA as unknown as number)
+              );
+            case "Menor Promedio":
+              const promedioC = calcularPromedioYEstado("PROMEDIO", a);
+              const promedioD = calcularPromedioYEstado("PROMEDIO", b);
+
+              if (promedioC === "-" && promedioD === "-") return 0;
+              if (promedioC === "-") return 1;
+              if (promedioD === "-") return -1;
+              return (
+                (promedioC as unknown as number) -
+                (promedioD as unknown as number)
+              );
+            case "Evaluados":
+              const estadoA = calcularPromedioYEstado("ESTADO", a) as
+                | "EVALUADO"
+                | "PENDIENTE"
+                | "SIN EVALUAR";
+              const estadoB = calcularPromedioYEstado("ESTADO", b) as
+                | "EVALUADO"
+                | "PENDIENTE"
+                | "SIN EVALUAR";
+              const prioridadEstado: Record<
+                "EVALUADO" | "PENDIENTE" | "SIN EVALUAR",
+                number
+              > = {
+                EVALUADO: 1,
+                PENDIENTE: 2,
+                "SIN EVALUAR": 3,
+              };
+
+              return prioridadEstado[estadoA] - prioridadEstado[estadoB];
+            case "Sin Evaluar":
+              const estadoC = calcularPromedioYEstado("ESTADO", a) as
+                | "EVALUADO"
+                | "PENDIENTE"
+                | "SIN EVALUAR";
+              const estadoD = calcularPromedioYEstado("ESTADO", b) as
+                | "EVALUADO"
+                | "PENDIENTE"
+                | "SIN EVALUAR";
+              const prioridadEstadoSinEvaluar: Record<
+                "EVALUADO" | "PENDIENTE" | "SIN EVALUAR",
+                number
+              > = {
+                "SIN EVALUAR": 1,
+                PENDIENTE: 2,
+                EVALUADO: 3,
+              };
+
+              return (
+                prioridadEstadoSinEvaluar[estadoC] -
+                prioridadEstadoSinEvaluar[estadoD]
+              );
+            default:
+              return 0; // No hagas nada si filterSelected no coincide con ninguna opción
+          }
+        });
+        dispatch(
+          setFilterArray(
+            (newArray as Array<ColaboradorProps>)?.filter((object) =>
+              searchFilterSelected
+                ? object.nombre
+                    .toLowerCase()
+                    .includes(searchFilterSelected.toLowerCase()) ||
+                  object.apellido
+                    .toLowerCase()
+                    .includes(searchFilterSelected.toLowerCase()) ||
+                  `${object.nombre.toLowerCase()} ${object.apellido.toLowerCase()}`.includes(
+                    searchFilterSelected.toLowerCase(),
+                  )
+                : true,
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
-  }, [filterSelected, groupFilterSelected, searchFilterSelected, array]);
+  }, [
+    filterSelected,
+    groupFilterSelected,
+    searchFilterSelected,
+    pealParticipantes,
+    array,
+    puntajes,
+  ]);
 
   const handleChangeFilter = (
     event: SelectChangeEvent<unknown>,
@@ -319,6 +589,16 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
     child: ReactNode,
   ) => {
     dispatch(setGroupFilterSelected(event.target.value as string));
+  };
+
+  const handleColaboradorClick = (colaborador: ColaboradorProps) => {
+    dispatch(setColaboradorPerfil(colaborador));
+    router.push("/Colaboradores/Perfil");
+  };
+
+  const handlePealClick = (peal: PealProps) => {
+    dispatch(setProyectoPerfil(peal));
+    router.push("/Proyectos/Perfil");
   };
 
   const handleEvaluacionClick = (evaluacion: EvaluacionProps) => {
@@ -417,6 +697,34 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
     }
   }
 
+  function getColorByTypeAndString(str: string) {
+    const hashCode = str
+      .split("")
+      .reduce((acc: number, char: string) => acc * char.charCodeAt(0), 1);
+    const baseColor = `hsl(${hashCode % 360}, 70%, 50%)`;
+    const color = `${baseColor.slice(0, -1)}, 80%)`;
+
+    return color;
+  }
+
+  interface randomProps {
+    id: number;
+  }
+
+  const RandomIcon: React.FC<randomProps> = ({ id }) => {
+    const IconComponent = icons[id % icons.length];
+    return <IconComponent size={25} />;
+  };
+
+  const RomanIcon = (ids: number[], id: number) => {
+    const index = ids.indexOf(id);
+    if (index === -1) {
+      return "!";
+    }
+    const romanNumeral = romanIcons[index % romanIcons.length];
+    return romanNumeral;
+  };
+
   return (
     <ColumnContainer>
       <SeparatorContainer>
@@ -450,7 +758,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
               </SelectOptions>
             ))}
           </StyledSelect>
-          {type == "COLABORADOR" ? (
+          {type == "COLABORADOR" && !participantesProyecto ? (
             <StyledSelect
               startAdornment={
                 groupFilterSelected ? (
@@ -540,22 +848,88 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
                       <TD firstColumn>
                         <div
                           style={{
-                            width: "33px",
-                            height: "33px",
-                            backgroundColor: "lightblue",
-                            borderRadius: "11px",
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: "5px",
+                            width: "fit-content",
+                            height: "100%",
                           }}
-                        ></div>
+                        >
+                          <DeleteTrashContainer
+                            onClick={() => {
+                              dispatch(setColaborador(object));
+                              dispatch(setActiveDelete(true));
+                            }}
+                          >
+                            <Image
+                              src={TrashDeleteButtonPNG}
+                              alt=""
+                              width={13}
+                              height={13}
+                            />
+                          </DeleteTrashContainer>
+                          {object.imagen ? (
+                            <Image
+                              src={`data:image/jpeg;base64,${object.imagen}`}
+                              alt={object?.nombre || "Imagen"}
+                              width={33}
+                              height={33}
+                              style={{
+                                borderRadius: "11px",
+                              }}
+                            />
+                          ) : (
+                            <Avatar
+                              sx={{
+                                bgcolor: getColorByTypeAndString(
+                                  object && object?.nombre && object?.apellido
+                                    ? `${object?.nombre[0]} ${object?.apellido[0]}`
+                                    : "black",
+                                ),
+                                width: 33,
+                                height: 33,
+                                borderRadius: "11px",
+                              }}
+                              variant="rounded"
+                            >
+                              {object && object?.nombre && object?.apellido
+                                ? object?.nombre[0]
+                                : ""}
+                              {object && object?.nombre && object?.apellido
+                                ? object?.apellido[0]
+                                : ""}
+                            </Avatar>
+                          )}
+                          <EditPencilContainer
+                            onClick={() => {
+                              dispatch(setColaboradorPerfil(object));
+                              dispatch(setEditColaborador(true));
+                              dispatch(setActive(true));
+                            }}
+                          >
+                            <Image
+                              src={EditPencilPNG}
+                              alt=""
+                              width={13}
+                              height={13}
+                            />
+                          </EditPencilContainer>
+                        </div>
                       </TD>
-                      <TD>{object.nombre}</TD>
-                      <TD>{object.apellido}</TD>
-                      <TD>
+                      <TD onClick={() => handleColaboradorClick(object)}>
+                        {object.nombre}
+                      </TD>
+                      <TD onClick={() => handleColaboradorClick(object)}>
+                        {object.apellido}
+                      </TD>
+                      <TD onClick={() => handleColaboradorClick(object)}>
                         {
                           peales?.find((peal) => peal.id == object.peal_id)
                             ?.nombre
                         }
                       </TD>
-                      <TD>
+                      <TD onClick={() => handleColaboradorClick(object)}>
                         <div
                           style={{
                             width: "100%",
@@ -575,27 +949,74 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
                         <TD firstColumn>
                           <div
                             style={{
-                              width: "33px",
-                              height: "33px",
-                              backgroundColor: "lightpink",
-                              borderRadius: "11px",
+                              display: "flex",
+                              flexDirection: "row",
+                              alignItems: "center",
+                              gap: "5px",
+                              width: "fit-content",
+                              height: "100%",
                             }}
-                          ></div>
+                          >
+                            <DeleteTrashContainer
+                              onClick={() => {
+                                dispatch(setPeal(object));
+                                dispatch(setActiveDelete(true));
+                              }}
+                            >
+                              <Image
+                                src={TrashDeleteButtonPNG}
+                                alt=""
+                                width={13}
+                                height={13}
+                              />
+                            </DeleteTrashContainer>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: "33px",
+                                height: "33px",
+                                backgroundColor: getColorByTypeAndString(
+                                  object.nombre,
+                                ),
+                                borderRadius: "11px",
+                              }}
+                            >
+                              <RandomIcon id={object.id} />
+                            </div>
+                            <EditPencilContainer
+                              onClick={() => {
+                                dispatch(setProyectoPerfil(object));
+                                dispatch(setEditProyecto(true));
+                                dispatch(setActive(true));
+                              }}
+                            >
+                              <Image
+                                src={EditPencilPNG}
+                                alt=""
+                                width={13}
+                                height={13}
+                              />
+                            </EditPencilContainer>
+                          </div>
                         </TD>
-                        <TD>{object.nombre}</TD>
-                        <TD>
+                        <TD onClick={() => handlePealClick(object)}>
+                          {object.nombre}
+                        </TD>
+                        <TD onClick={() => handlePealClick(object)}>
                           {calcularDiferenciaFechas(
                             object.comienzo?.slice(5, -13),
                           )}
                         </TD>
-                        <TD>
+                        <TD onClick={() => handlePealClick(object)}>
                           {colaboradores
                             ?.filter(
                               (colaborador) => colaborador.peal_id == object.id,
                             )
                             .length.toString()}
                         </TD>
-                        <TD>
+                        <TD onClick={() => handlePealClick(object)}>
                           <div
                             style={{
                               width: "100%",
@@ -611,24 +1032,100 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
                     ))
                   : type == "EVALUACION"
                     ? (filterArray as Array<EvaluacionProps>)?.map((object) => (
-                        <TRow
-                          key={object.id}
-                          onClick={() => handleEvaluacionClick(object)}
-                        >
+                        <TRow key={object.id}>
                           <TD firstColumn>
                             <div
                               style={{
-                                width: "33px",
-                                height: "33px",
-                                backgroundColor: "lightgreen",
-                                borderRadius: "11px",
+                                display: "flex",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: "5px",
+                                width: "fit-content",
+                                height: "100%",
                               }}
-                            ></div>
+                            >
+                              <DeleteTrashContainer
+                                onClick={() => {
+                                  dispatch(setEvaluacion(object));
+                                  dispatch(setActiveDelete(true));
+                                }}
+                              >
+                                <Image
+                                  src={TrashDeleteButtonPNG}
+                                  alt=""
+                                  width={13}
+                                  height={13}
+                                />
+                              </DeleteTrashContainer>
+                              <Avatar
+                                sx={{
+                                  bgcolor: getColorByTypeAndString(
+                                    object && object?.nombre
+                                      ? `${object?.nombre}`
+                                      : "black",
+                                  ),
+                                  width: 33,
+                                  height: 33,
+                                  borderRadius: "11px",
+                                }}
+                                variant="rounded"
+                              >
+                                {RomanIcon(
+                                  array
+                                    ?.map((evaluacion) => evaluacion.id)
+                                    .sort((a, b) => a - b) || [],
+                                  object.id,
+                                )}
+                              </Avatar>
+                              <EditPencilContainer
+                                onClick={() => {
+                                  dispatch(setEvaluacionSelected(object));
+                                  dispatch(setEditEvaluacion(true));
+                                  dispatch(setActive(true));
+                                }}
+                              >
+                                <Image
+                                  src={EditPencilPNG}
+                                  alt=""
+                                  width={13}
+                                  height={13}
+                                />
+                              </EditPencilContainer>
+                            </div>
                           </TD>
-                          <TD>{object.nombre}</TD>
-                          <TD>{object.comienzo?.slice(5, -13)}</TD>
-                          <TD>
-                            0/
+                          <TD onClick={() => handleEvaluacionClick(object)}>
+                            {object.nombre}
+                          </TD>
+                          <TD onClick={() => handleEvaluacionClick(object)}>
+                            {object.comienzo?.slice(5, -13)}
+                          </TD>
+                          <TD onClick={() => handleEvaluacionClick(object)}>
+                            {puntajes
+                              ?.filter((puntaje) => {
+                                if (
+                                  puntaje.adaptacion_al_cambio &&
+                                  puntaje.comunicacion &&
+                                  puntaje.habilidades_relacionales &&
+                                  puntaje.liderazgo &&
+                                  puntaje.porcentaje_asistencia &&
+                                  puntaje.presencia &&
+                                  puntaje.proactividad &&
+                                  puntaje.puntualidad &&
+                                  puntaje.rendimiento_laboral &&
+                                  puntaje.responsabilidades &&
+                                  puntaje.trabajo_en_equipo
+                                ) {
+                                  if (puntaje.evaluacion_id == object.id) {
+                                    return true;
+                                  } else {
+                                    return false;
+                                  }
+                                } else {
+                                  return false;
+                                }
+                              })
+                              .length.toString()}
+                            /
                             {colaboradores
                               ?.filter(
                                 (colaborador) =>
@@ -636,33 +1133,114 @@ const SearchBox: React.FC<SearchBoxProps> = ({ type, array }) => {
                               )
                               .length.toString()}
                           </TD>
-                          <TD>{object.ultima_actualizacion?.slice(5, -13)}</TD>
+                          <TD onClick={() => handleEvaluacionClick(object)}>
+                            {object.ultima_actualizacion?.slice(5, -13)}
+                          </TD>
                         </TRow>
                       ))
                     : (filterArray as Array<ColaboradorProps>)?.map(
                         (object) => (
-                          <TRow
-                            key={object.id}
-                            onClick={() =>
-                              handleParticipantesEvaluacionClick(object)
-                            }
-                          >
+                          <TRow key={object.id}>
                             <TD firstColumn>
                               <div
                                 style={{
-                                  width: "33px",
-                                  height: "33px",
-                                  backgroundColor: "lightcoral",
-                                  borderRadius: "11px",
+                                  display: "flex",
+                                  flexDirection: "row",
+                                  alignItems: "center",
+                                  gap: "5px",
+                                  width: "fit-content",
+                                  height: "100%",
                                 }}
-                              ></div>
+                              >
+                                <DeleteTrashContainer
+                                  onClick={() => {
+                                    dispatch(
+                                      setPuntaje(
+                                        puntajes?.find(
+                                          (puntaje) =>
+                                            puntaje.colaborador_id ==
+                                              object.id &&
+                                            puntaje.evaluacion_id ==
+                                              evaluacionSelected?.id,
+                                        ),
+                                      ),
+                                    );
+                                    dispatch(setActiveDelete(true));
+                                  }}
+                                >
+                                  <Image
+                                    src={TrashDeleteButtonPNG}
+                                    alt=""
+                                    width={13}
+                                    height={13}
+                                  />
+                                </DeleteTrashContainer>
+                                {object.imagen ? (
+                                  <Image
+                                    src={`data:image/jpeg;base64,${object.imagen}`}
+                                    alt={object?.nombre || "Imagen"}
+                                    width={33}
+                                    height={33}
+                                    style={{
+                                      borderRadius: "11px",
+                                    }}
+                                  />
+                                ) : (
+                                  <Avatar
+                                    sx={{
+                                      bgcolor: getColorByTypeAndString(
+                                        object &&
+                                          object?.nombre &&
+                                          object?.apellido
+                                          ? `${object?.nombre[0]} ${object?.apellido[0]}`
+                                          : "black",
+                                      ),
+                                      width: 33,
+                                      height: 33,
+                                      borderRadius: "11px",
+                                    }}
+                                    variant="rounded"
+                                  >
+                                    {object &&
+                                    object?.nombre &&
+                                    object?.apellido
+                                      ? object?.nombre[0]
+                                      : ""}
+                                    {object &&
+                                    object?.nombre &&
+                                    object?.apellido
+                                      ? object?.apellido[0]
+                                      : ""}
+                                  </Avatar>
+                                )}
+                              </div>
                             </TD>
-                            <TD>{object.nombre}</TD>
-                            <TD>{object.apellido}</TD>
-                            <TD>
+                            <TD
+                              onClick={() =>
+                                handleParticipantesEvaluacionClick(object)
+                              }
+                            >
+                              {object.nombre}
+                            </TD>
+                            <TD
+                              onClick={() =>
+                                handleParticipantesEvaluacionClick(object)
+                              }
+                            >
+                              {object.apellido}
+                            </TD>
+                            <TD
+                              onClick={() =>
+                                handleParticipantesEvaluacionClick(object)
+                              }
+                            >
                               {calcularPromedioYEstado("PROMEDIO", object)}
                             </TD>
-                            <TD>
+                            <TD
+                              onClick={() =>
+                                handleParticipantesEvaluacionClick(object)
+                              }
+                            >
                               <div
                                 style={{
                                   width: "100%",

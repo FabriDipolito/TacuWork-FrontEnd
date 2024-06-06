@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
+
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 import {
   Button,
   ButtonBox,
   ButtonText,
+  CloseModalContainer,
+  DateSelect,
+  FilterPlaceholder,
   Header,
-  Input,
   InputBox,
   InputText,
   InputTitle,
@@ -14,14 +21,21 @@ import {
   ModalCard,
   Photo,
   RightBox,
+  SelectOptions,
+  SelectText,
   SubTitle,
+  TextPhotoContianer,
   Title,
   TitleBox,
 } from "./styles";
 import {
+  BUSCAR,
   COLABORADOR,
   COLABORADORES_MODAL,
+  COLABORADORES_MODAL_EGRESOS,
+  COLABORADORES_MODAL_NIVEL_EDUCATIVO,
   CREAR,
+  EDITAR,
   EVALUACION_MODAL,
   EVALUAR,
   PROYECTO_MODAL,
@@ -60,19 +74,47 @@ import {
 } from "@redux/slices/modalSlice";
 import { ColaboradorPOST } from "src/services/api/colaboradorPOST";
 import { PealPOST } from "src/services/api/pealesPOST";
-import { colaboradoresGET } from "src/services/api/allColaboradoresGET";
-import { setColaboradores } from "@redux/slices/generalVariableSlice";
 import { EvaluacionPOST } from "src/services/api/evaluacionesPOST";
 import { PuntajePOST } from "src/services/api/puntajesPOST";
 import { PuntajePUT } from "src/services/api/puntajesPUT";
+import { SelectChangeEvent } from "@mui/material/Select";
+import dayjs from "dayjs";
+import {
+  setColaboradores,
+  setEvaluaciones,
+  setPeales,
+  setPuntajes,
+} from "@redux/slices/generalVariableSlice";
+import {
+  ColaboradorProps,
+  EvaluacionProps,
+  PealProps,
+  PuntajeProps,
+} from "@types";
+import { ColaboradorPUT } from "src/services/api/colaboradorPUT";
+import { setColaboradorPerfil } from "@redux/slices/perfilColaboradoresSlice";
+import { PealPUT } from "src/services/api/pealesPUT";
+import { setProyectoPerfil } from "@redux/slices/perfilProyectosSlice";
+import { setEditEvaluacion } from "@redux/slices/evaluacionesSlice";
+import { EvaluacionPUT } from "src/services/api/evaluacionesPUT";
+import { setEditProyecto } from "@redux/slices/proyectosSlice";
+import { setEditColaborador } from "@redux/slices/colaboradoresSlice";
+import { CloseModalPNG } from "src/assests";
+import { Avatar } from "@mui/material";
+import NumberInputBasic from "../InputNumber/InputNumber";
 
 interface modalProps {
   type: "COLABORADOR" | "PROYECTO" | "EVALUACION" | "PARTICIPANTESEVALUACION";
+  edit?: boolean;
   peal_id?: number;
 }
 
-const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
+const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
   const dispatch = useAppDispatch();
+  const colaboradores = useAppSelector((state) => state.general.colaboradores);
+  const peales = useAppSelector((state) => state.general.peales);
+  const evaluaciones = useAppSelector((state) => state.general.evaluaciones);
+  const puntajes = useAppSelector((state) => state.general.puntajes);
 
   // COLABORADOR
   const nombreColaborador = useAppSelector(
@@ -87,10 +129,46 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
   const egresos = useAppSelector((state) => state.modal.egresos);
   const pealId = useAppSelector((state) => state.modal.peal_id);
 
+  const [isFocused1, setIsFocused1] = useState(false);
+  const [isFocused2, setIsFocused2] = useState(false);
+  const [isFocused3, setIsFocused3] = useState(false);
+
+  const handleFocus1 = () => {
+    setIsFocused1(true);
+  };
+
+  const handleBlur1 = () => {
+    setIsFocused1(false);
+  };
+
+  const handleFocus2 = () => {
+    setIsFocused2(true);
+  };
+
+  const handleBlur2 = () => {
+    setIsFocused2(false);
+  };
+
+  const handleFocus3 = () => {
+    setIsFocused3(true);
+  };
+
+  const handleBlur3 = () => {
+    setIsFocused3(false);
+  };
+
+  const colaboradorSeleccionado = useAppSelector(
+    (state) => state.perfil.colaboradorSelected,
+  );
+
   // PROYECTO
   const nombreProyecto = useAppSelector((state) => state.modal.nombre_peal);
   const comienzo = useAppSelector((state) => state.modal.comienzo);
   const fin = useAppSelector((state) => state.modal.fin);
+
+  const pealSeleccionado = useAppSelector(
+    (state) => state.perfilProyecto.pealSelected,
+  );
 
   // EVALUACION
   const nombreEvaluacion = useAppSelector(
@@ -98,6 +176,10 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
   );
   const comienzoEvaluacion = useAppSelector(
     (state) => state.modal.comienzo_evaluacion,
+  );
+
+  const evaluacionSeleccionado = useAppSelector(
+    (state) => state.participantesEvaluacion.evaluacionSelected,
   );
 
   // PARTICIPANTES EVALUACION
@@ -130,7 +212,7 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
     (state) => state.modal.rendimiento_laboral,
   );
 
-  const puntaje = useAppSelector((state) => state.general.puntajes)?.find(
+  const puntaje = puntajes?.find(
     (puntaje) =>
       puntaje.colaborador_id == colaboradorPuntuar?.id &&
       puntaje.evaluacion_id == evaluacionPuntuar?.id,
@@ -139,6 +221,26 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
   const [hoverButton, setHoverButton] = useState(false);
 
   useEffect(() => {
+    if (edit && colaboradorSeleccionado) {
+      dispatch(setNombreColaborador(colaboradorSeleccionado.nombre));
+      dispatch(setApellido(colaboradorSeleccionado.apellido));
+      dispatch(setEdad(colaboradorSeleccionado.edad));
+      dispatch(setHijos(colaboradorSeleccionado.hijos));
+      dispatch(setBarrio(colaboradorSeleccionado.zona_residencial));
+      dispatch(setTelefono(colaboradorSeleccionado.telefono));
+      dispatch(setNivelEducativo(colaboradorSeleccionado.nivel_educativo));
+      dispatch(setEgresos(colaboradorSeleccionado.egresos));
+      dispatch(setPealId(colaboradorSeleccionado.peal_id));
+    }
+    if (edit && pealSeleccionado) {
+      dispatch(setNombrePeal(pealSeleccionado.nombre));
+      dispatch(setComienzo(dayjs(pealSeleccionado.comienzo)));
+      dispatch(setFin(dayjs(pealSeleccionado.fin)));
+    }
+    if (edit && evaluacionSeleccionado) {
+      dispatch(setNombreEvaluacion(evaluacionSeleccionado.nombre));
+      dispatch(setComienzoEvaluacion(dayjs(evaluacionSeleccionado.comienzo)));
+    }
     dispatch(setAdaptacionCambio(puntaje?.adaptacion_al_cambio));
     dispatch(setHabilidadesRelacionales(puntaje?.habilidades_relacionales));
     dispatch(setComunicacion(puntaje?.comunicacion));
@@ -164,35 +266,127 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
       nivelEducativo &&
       egresos &&
       pealId
-    )
-      ColaboradorPOST(
-        nombreColaborador,
-        apellidoColaborador,
-        edad,
-        hijos,
-        barrio,
-        telefono,
-        nivelEducativo,
-        egresos,
-        pealId,
-      );
-
-    if (type == "PROYECTO" && nombreProyecto && comienzo && fin)
-      PealPOST(nombreProyecto, comienzo, fin);
-
+    ) {
+      if (edit && colaboradorSeleccionado) {
+        const OkColaboradores = ColaboradorPUT(
+          colaboradorSeleccionado.id,
+          nombreColaborador,
+          apellidoColaborador,
+          edad,
+          hijos,
+          barrio,
+          telefono,
+          nivelEducativo,
+          egresos,
+          pealId,
+        );
+        if (OkColaboradores) {
+          OkColaboradores.then((data) => {
+            dispatch(
+              setColaboradores(
+                colaboradores?.map((colaborador) =>
+                  (data as ColaboradorProps).id == colaborador.id
+                    ? data
+                    : colaborador,
+                ),
+              ),
+            ),
+              dispatch(setColaboradorPerfil(data));
+          });
+        }
+      } else {
+        const OkColaboradores = ColaboradorPOST(
+          nombreColaborador,
+          apellidoColaborador,
+          edad,
+          hijos,
+          barrio,
+          telefono,
+          nivelEducativo,
+          egresos,
+          pealId,
+        );
+        if (OkColaboradores) {
+          const newArray = colaboradores;
+          OkColaboradores.then((data) =>
+            dispatch(setColaboradores(newArray?.concat([data]))),
+          );
+        }
+      }
+      dispatch(setEditColaborador(true));
+    }
+    if (type == "PROYECTO" && nombreProyecto && comienzo && fin) {
+      if (edit && pealSeleccionado) {
+        const OkPeal = PealPUT(
+          pealSeleccionado.id,
+          nombreProyecto,
+          comienzo,
+          fin,
+        );
+        if (OkPeal) {
+          OkPeal.then((data) => {
+            dispatch(
+              setPeales(
+                peales?.map((peal) =>
+                  (data as PealProps).id == peal.id ? data : peal,
+                ),
+              ),
+            ),
+              dispatch(setProyectoPerfil(data));
+          });
+        }
+      } else {
+        const OkPeal = PealPOST(nombreProyecto, comienzo, fin);
+        if (OkPeal) {
+          const newArray = peales;
+          OkPeal.then((data) => dispatch(setPeales(newArray?.concat([data]))));
+        }
+      }
+      dispatch(setEditProyecto(true));
+    }
     if (
       type == "EVALUACION" &&
       nombreEvaluacion &&
       comienzoEvaluacion &&
       peal_id
-    )
-      EvaluacionPOST(
-        nombreEvaluacion,
-        comienzoEvaluacion,
-        new Date().toString(),
-        peal_id,
-      );
-
+    ) {
+      if (edit && evaluacionSeleccionado) {
+        const OkEvaluacion = EvaluacionPUT(
+          evaluacionSeleccionado.id,
+          nombreEvaluacion,
+          comienzoEvaluacion,
+          dayjs(),
+          peal_id,
+        );
+        if (OkEvaluacion) {
+          OkEvaluacion.then((data) =>
+            dispatch(
+              setEvaluaciones(
+                evaluaciones?.map((evaluacion) =>
+                  (data as EvaluacionProps).id == evaluacion.id
+                    ? data
+                    : evaluacion,
+                ),
+              ),
+            ),
+          );
+        }
+      } else {
+        const OkEvaluacion = EvaluacionPOST(
+          nombreEvaluacion,
+          comienzoEvaluacion,
+          dayjs(),
+          peal_id,
+        );
+        if (OkEvaluacion) {
+          const newArray = evaluaciones;
+          OkEvaluacion.then((data) =>
+            dispatch(setEvaluaciones(newArray?.concat([data]))),
+          );
+        }
+      }
+      dispatch(setEditEvaluacion(true));
+    }
     if (
       type == "PARTICIPANTESEVALUACION" &&
       colaboradorPuntuar &&
@@ -210,7 +404,7 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
         rendimientoLaboral)
     ) {
       if (puntaje) {
-        PuntajePUT(
+        const OkPuntaje = PuntajePUT(
           colaboradorPuntuar.id,
           evaluacionPuntuar.id,
           adaptacionCambio,
@@ -225,8 +419,23 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
           responsabilidad,
           rendimientoLaboral,
         );
+        if (OkPuntaje) {
+          OkPuntaje.then((data) =>
+            dispatch(
+              setPuntajes(
+                puntajes?.map((puntaje) =>
+                  (data as PuntajeProps).colaborador_id ==
+                    puntaje.colaborador_id &&
+                  (data as PuntajeProps).evaluacion_id == puntaje.evaluacion_id
+                    ? data
+                    : puntaje,
+                ),
+              ),
+            ),
+          );
+        }
       } else {
-        PuntajePOST(
+        const OkPuntaje = PuntajePOST(
           colaboradorPuntuar.id,
           evaluacionPuntuar.id,
           adaptacionCambio,
@@ -241,22 +450,128 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
           responsabilidad,
           rendimientoLaboral,
         );
+        if (OkPuntaje) {
+          const newArray = puntajes;
+          OkPuntaje.then((data) =>
+            dispatch(setPuntajes(newArray?.concat([data]))),
+          );
+        }
       }
     }
+    dispatch(clearModal());
     dispatch(setActive(false));
   };
+
+  function getColorByTypeAndString(str: string) {
+    const hashCode = str
+      .split("")
+      .reduce((acc: number, char: string) => acc * char.charCodeAt(0), 1);
+    const baseColor = `hsl(${hashCode % 360}, 70%, 50%)`;
+    const color = `${baseColor.slice(0, -1)}, 80%)`;
+
+    return color;
+  }
 
   return (
     <ModalBackground>
       <ModalCard>
         <Header>
-          <Photo />
-          <TitleBox>
-            <Title>
-              {nombreColaborador} {apellidoColaborador}
-            </Title>
-            <SubTitle>{egresos}</SubTitle>
-          </TitleBox>
+          {edit ? (
+            <>
+              <TextPhotoContianer>
+                {type == "COLABORADOR" ? (
+                  colaboradorSeleccionado?.imagen ? (
+                    <Image
+                      src={`data:image/jpeg;base64,${colaboradorSeleccionado?.imagen}`}
+                      alt={colaboradorSeleccionado?.nombre || "Imagen"}
+                      width={75}
+                      height={70}
+                      style={{
+                        borderRadius: "11px",
+                      }}
+                    />
+                  ) : (
+                    <Avatar
+                      sx={{
+                        bgcolor: getColorByTypeAndString(
+                          colaboradorSeleccionado &&
+                            colaboradorSeleccionado?.nombre &&
+                            colaboradorSeleccionado?.apellido
+                            ? `${colaboradorSeleccionado?.nombre[0]} ${colaboradorSeleccionado?.apellido[0]}`
+                            : "black",
+                        ),
+                        width: 75,
+                        height: 70,
+                        borderRadius: "11px",
+                      }}
+                      variant="rounded"
+                    >
+                      {colaboradorSeleccionado &&
+                      colaboradorSeleccionado?.nombre &&
+                      colaboradorSeleccionado?.apellido
+                        ? colaboradorSeleccionado?.nombre[0]
+                        : ""}
+                      {colaboradorSeleccionado &&
+                      colaboradorSeleccionado?.nombre &&
+                      colaboradorSeleccionado?.apellido
+                        ? colaboradorSeleccionado?.apellido[0]
+                        : ""}
+                    </Avatar>
+                  )
+                ) : type == "PROYECTO" ? (
+                  <Photo />
+                ) : (
+                  <Photo />
+                )}
+                <TitleBox>
+                  <Title>
+                    {type == "COLABORADOR"
+                      ? `${nombreColaborador} ${apellidoColaborador}`
+                      : type == "PROYECTO"
+                        ? `${nombreProyecto}`
+                        : `${nombreEvaluacion}`}
+                  </Title>
+                  <SubTitle>{!(type == "COLABORADOR") || egresos}</SubTitle>
+                </TitleBox>
+              </TextPhotoContianer>
+              <div
+                style={{
+                  display: "flex",
+                  height: "70px",
+                  justifyContent: "flex-start",
+                  alignItems: "flex-start",
+                  paddingTop: "5px",
+                }}
+              >
+                <CloseModalContainer
+                  onClick={() => {
+                    dispatch(clearModal());
+                    dispatch(setActive(false));
+                  }}
+                >
+                  <Image src={CloseModalPNG} alt="" width={16} height={16} />
+                </CloseModalContainer>
+              </div>
+            </>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                height: "fit-content",
+                width: "100%",
+                justifyContent: "flex-end",
+              }}
+            >
+              <CloseModalContainer
+                onClick={() => {
+                  dispatch(clearModal());
+                  dispatch(setActive(false));
+                }}
+              >
+                <Image src={CloseModalPNG} alt="" width={16} height={16} />
+              </CloseModalContainer>
+            </div>
+          )}
         </Header>
         <MainBox>
           <LeftBox>
@@ -273,40 +588,87 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
                 </InputBox>
                 <InputBox>
                   <InputTitle>{COLABORADORES_MODAL[2]}</InputTitle>
-                  <InputText
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setEdad(event.target.value as unknown as number),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(edad, "EDAD")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{COLABORADORES_MODAL[4]}</InputTitle>
-                  <InputText
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(setNivelEducativo(event.target.value));
+                  <SelectText
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    placeholder={!isFocused1 && !nivelEducativo}
+                    defaultValue={
+                      colaboradorSeleccionado && edit
+                        ? colaboradorSeleccionado.nivel_educativo
+                        : ""
+                    }
+                    onOpen={handleFocus1}
+                    onClose={handleBlur1}
+                    onChange={(event: SelectChangeEvent) => {
+                      dispatch(setNivelEducativo(event.target.value as string));
                     }}
-                  />
+                    startAdornment={
+                      isFocused1 || nivelEducativo ? (
+                        <></>
+                      ) : (
+                        <>
+                          <FilterPlaceholder>{BUSCAR}</FilterPlaceholder>
+                        </>
+                      )
+                    }
+                  >
+                    {COLABORADORES_MODAL_NIVEL_EDUCATIVO?.map((name) => (
+                      <SelectOptions key={name} value={name}>
+                        {name}
+                      </SelectOptions>
+                    ))}
+                  </SelectText>
                 </InputBox>
                 <InputBox>
                   <InputTitle>{COLABORADORES_MODAL[6]}</InputTitle>
                   <InputText
+                    value={barrio}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                       dispatch(setBarrio(event.target.value));
                     }}
                   />
                 </InputBox>
-                <InputBox>
-                  <InputTitle>{COLABORADORES_MODAL[8]}</InputTitle>
-                  <InputText
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setPealId(event.target.value as unknown as number),
-                      );
-                    }}
-                  />
-                </InputBox>
+                {edit || (
+                  <InputBox>
+                    <InputTitle>{COLABORADORES_MODAL[8]}</InputTitle>
+                    <SelectText
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
+                      placeholder={!isFocused3 && !pealId}
+                      defaultValue={
+                        colaboradorSeleccionado && edit
+                          ? colaboradorSeleccionado.peal_id
+                          : ""
+                      }
+                      onOpen={handleFocus3}
+                      onClose={handleBlur3}
+                      onChange={(event: SelectChangeEvent) => {
+                        dispatch(
+                          setPealId(event.target.value as unknown as number),
+                        );
+                      }}
+                      startAdornment={
+                        isFocused3 || pealId ? (
+                          <></>
+                        ) : (
+                          <>
+                            <FilterPlaceholder>{BUSCAR}</FilterPlaceholder>
+                          </>
+                        )
+                      }
+                    >
+                      {peales?.map((peal) => (
+                        <SelectOptions key={peal.id} value={peal.id}>
+                          {peal.nombre}
+                        </SelectOptions>
+                      ))}
+                    </SelectText>
+                  </InputBox>
+                )}
               </>
             ) : type == "PROYECTO" ? (
               <>
@@ -321,11 +683,12 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
                 </InputBox>
                 <InputBox>
                   <InputTitle>{PROYECTO_MODAL[2]}</InputTitle>
-                  <InputText
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(setFin(event.target.value));
-                    }}
-                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateSelect
+                      value={fin}
+                      onChange={(newDate) => dispatch(setFin(newDate))}
+                    />
+                  </LocalizationProvider>
                 </InputBox>
               </>
             ) : type == "EVALUACION" ? (
@@ -333,6 +696,7 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
                 <InputBox>
                   <InputTitle>{EVALUACION_MODAL[0]}</InputTitle>
                   <InputText
+                    value={nombreEvaluacion}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                       dispatch(setNombreEvaluacion(event.target.value));
                     }}
@@ -343,79 +707,27 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
               <>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[0]}</InputTitle>
-                  <InputText
-                    value={adaptacionCambio}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setAdaptacionCambio(
-                          event.target.value as unknown as number,
-                        ),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(adaptacionCambio, "ADAPTACION")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[2]}</InputTitle>
-                  <InputText
-                    value={comunicacion}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setComunicacion(
-                          event.target.value as unknown as number,
-                        ),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(comunicacion, "COMUNICACION")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[4]}</InputTitle>
-                  <InputText
-                    value={proactividad}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setProactividad(
-                          event.target.value as unknown as number,
-                        ),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(proactividad, "PROACTIVIDAD")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[6]}</InputTitle>
-                  <InputText
-                    value={puntualidad}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setPuntualidad(event.target.value as unknown as number),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(puntualidad, "PUNTUALIDAD")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[8]}</InputTitle>
-                  <InputText
-                    value={trabajoEquipo}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setTrabajoEquipo(
-                          event.target.value as unknown as number,
-                        ),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(trabajoEquipo, "TRABAJOEQUIPO")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[10]}</InputTitle>
-                  <InputText
-                    value={rendimientoLaboral}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setRendimientoLaboral(
-                          event.target.value as unknown as number,
-                        ),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(rendimientoLaboral, "RENDIMIENTO")}
                 </InputBox>
               </>
             ) : (
@@ -428,6 +740,7 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
                 <InputBox>
                   <InputTitle>{COLABORADORES_MODAL[1]}</InputTitle>
                   <InputText
+                    value={apellidoColaborador}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                       dispatch(setApellido(event.target.value));
                     }}
@@ -435,17 +748,12 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
                 </InputBox>
                 <InputBox>
                   <InputTitle>{COLABORADORES_MODAL[3]}</InputTitle>
-                  <InputText
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setHijos(event.target.value as unknown as number),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(hijos, "HIJOS")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{COLABORADORES_MODAL[5]}</InputTitle>
                   <InputText
+                    value={telefono}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                       dispatch(setTelefono(event.target.value));
                     }}
@@ -453,97 +761,85 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
                 </InputBox>
                 <InputBox>
                   <InputTitle>{COLABORADORES_MODAL[7]}</InputTitle>
-                  <InputText
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(setEgresos(event.target.value));
+                  <SelectText
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    placeholder={!isFocused2 && !egresos}
+                    defaultValue={
+                      colaboradorSeleccionado && edit
+                        ? colaboradorSeleccionado.egresos
+                        : ""
+                    }
+                    onOpen={handleFocus2}
+                    onClose={handleBlur2}
+                    onChange={(event: SelectChangeEvent) => {
+                      dispatch(setEgresos(event.target.value as string));
                     }}
-                  />
+                    startAdornment={
+                      isFocused2 || egresos ? (
+                        <></>
+                      ) : (
+                        <>
+                          <FilterPlaceholder>{BUSCAR}</FilterPlaceholder>
+                        </>
+                      )
+                    }
+                  >
+                    {COLABORADORES_MODAL_EGRESOS?.map((name) => (
+                      <SelectOptions key={name} value={name}>
+                        {name}
+                      </SelectOptions>
+                    ))}
+                  </SelectText>
                 </InputBox>
               </>
             ) : type == "PROYECTO" ? (
               <>
                 <InputBox>
                   <InputTitle>{PROYECTO_MODAL[1]}</InputTitle>
-                  <InputText
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(setComienzo(event.target.value));
-                    }}
-                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateSelect
+                      value={comienzo}
+                      onChange={(newDate) => dispatch(setComienzo(newDate))}
+                    />
+                  </LocalizationProvider>
                 </InputBox>
               </>
             ) : type == "EVALUACION" ? (
               <>
                 <InputBox>
                   <InputTitle>{EVALUACION_MODAL[1]}</InputTitle>
-                  <InputText
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(setComienzoEvaluacion(event.target.value));
-                    }}
-                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateSelect
+                      value={comienzoEvaluacion}
+                      onChange={(newDate) =>
+                        dispatch(setComienzoEvaluacion(newDate))
+                      }
+                    />
+                  </LocalizationProvider>
                 </InputBox>
               </>
             ) : type == "PARTICIPANTESEVALUACION" ? (
               <>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[1]}</InputTitle>
-                  <InputText
-                    value={habilidadesRelacionales}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setHabilidadesRelacionales(
-                          event.target.value as unknown as number,
-                        ),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(habilidadesRelacionales, "HABILIDADES")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[3]}</InputTitle>
-                  <InputText
-                    value={liderazgo}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setLiderazgo(event.target.value as unknown as number),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(liderazgo, "LIDERAZGO")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[5]}</InputTitle>
-                  <InputText
-                    value={presencia}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setPresencia(event.target.value as unknown as number),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(presencia, "PRESENCIA")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[7]}</InputTitle>
-                  <InputText
-                    value={porcentajeAsistencia}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setPorcentajeAsistencia(
-                          event.target.value as unknown as number,
-                        ),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(porcentajeAsistencia, "ASISTENCIA")}
                 </InputBox>
                 <InputBox>
                   <InputTitle>{PUNTUACION_MODAL[9]}</InputTitle>
-                  <InputText
-                    value={responsabilidad}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatch(
-                        setResponsabilidad(
-                          event.target.value as unknown as number,
-                        ),
-                      );
-                    }}
-                  />
+                  {NumberInputBasic(responsabilidad, "RESPONSABILIDAD")}
                 </InputBox>
               </>
             ) : (
@@ -560,7 +856,9 @@ const Modal: React.FC<modalProps> = ({ type, peal_id }) => {
                     ? EVALUAR
                     : type == "PARTICIPANTESEVALUACION"
                       ? PUNTUAR
-                      : CREAR}
+                      : edit
+                        ? EDITAR
+                        : CREAR}
                 </ButtonText>
               </Button>
             </ButtonBox>

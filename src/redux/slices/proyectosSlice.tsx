@@ -3,6 +3,7 @@ import { PealProps, proyectoState } from "@types";
 
 const initialState: proyectoState = {
   pealSelected: undefined,
+  edit: true,
 };
 
 export const proyectosSlice = createSlice({
@@ -12,9 +13,12 @@ export const proyectosSlice = createSlice({
     setPealSelected: (state, action: PayloadAction<PealProps | undefined>) => {
       state.pealSelected = action.payload;
     },
+    setEditProyecto: (state, action: PayloadAction<boolean>) => {
+      state.edit = action.payload;
+    },
   },
 });
 
-export const { setPealSelected } = proyectosSlice.actions;
+export const { setPealSelected, setEditProyecto } = proyectosSlice.actions;
 
 export default proyectosSlice.reducer;

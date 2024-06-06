@@ -8,7 +8,6 @@ import {
 } from "@types";
 
 const initialState: participantesEvaluacionState = {
-  linkSelected: "PARTICIPANTES",
   colaboradorSelected: undefined,
   pealSelected: undefined,
   evaluacionSelected: undefined,
@@ -19,12 +18,6 @@ export const participantesEvaluacionSlice = createSlice({
   name: "analisis",
   initialState,
   reducers: {
-    setLinkSelected: (
-      state,
-      action: PayloadAction<"PARTICIPANTES" | "TABLERO">,
-    ) => {
-      state.linkSelected = action.payload;
-    },
     setColaboradorSelected: (
       state,
       action: PayloadAction<ColaboradorProps | undefined>,
@@ -50,7 +43,6 @@ export const participantesEvaluacionSlice = createSlice({
 });
 
 export const {
-  setLinkSelected,
   setColaboradorSelected,
   setPealSelected,
   setEvaluacionSelected,

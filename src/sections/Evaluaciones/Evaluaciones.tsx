@@ -28,51 +28,43 @@ import { PealProps } from "@types";
 import { setPeales } from "@redux/slices/generalVariableSlice";
 import { SearchBox } from "src/components/SearchBox/SearchBox";
 import {
+  setEditEvaluacion,
   setEvaluacionesHechas,
   setPealSelected,
 } from "@redux/slices/evaluacionesSlice";
-import { evaluacionesPealGET } from "src/services/api/EvaluacionesPealGET";
 import { setActive } from "@redux/slices/modalSlice";
 import { Modal } from "src/components/Modal/Modal";
+import { set } from "date-fns";
+import { DeleteModal } from "src/components/Modal/DeleteModal/DeleteModal";
+import { setEvaluacionSelected } from "@redux/slices/participantesEvaluacionSlice";
 
 const EvaluacionesPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const peales = useAppSelector((state) => state.general.peales);
+  const evaluaciones = useAppSelector((state) => state.general.evaluaciones);
   const pealSeleccionado = useAppSelector(
     (state) => state.evaluacion.pealSelected,
   );
   const evaluacionesHechas = useAppSelector(
     (state) => state.evaluacion.evaluacionesHechas,
   );
+  const edit = useAppSelector((state) => state.evaluacion.edit);
   const modalActive = useAppSelector((state) => state.modal.active);
+  const modalDeleteActive = useAppSelector((state) => state.modalDelete.active);
 
   const [hoverButton, setHoverButton] = useState(false);
 
   useEffect(() => {
-    pealesGET()
-      .then((allPeales) => {
-        if (allPeales) {
-          dispatch(setPeales(allPeales));
-        }
-      })
-      .catch((error) => {
-        console.error("Error to obtain data of users:", error);
-      });
-  }, []);
-
-  useEffect(() => {
     if (pealSeleccionado) {
-      evaluacionesPealGET(pealSeleccionado.id)
-        .then((allEvaluaciones) => {
-          if (allEvaluaciones) {
-            dispatch(setEvaluacionesHechas(allEvaluaciones));
-          }
-        })
-        .catch((error) => {
-          console.error("Error to obtain data of users:", error);
-        });
+      dispatch(
+        setEvaluacionesHechas(
+          evaluaciones?.filter(
+            (evaluacion) => evaluacion.peal_id == pealSeleccionado.id,
+          ) || [],
+        ),
+      );
     }
-  }, [pealSeleccionado]);
+  }, [pealSeleccionado, evaluaciones]);
 
   return (
     <EvaluacionContainer>
@@ -109,7 +101,11 @@ const EvaluacionesPage: React.FC = () => {
           <EvaluacionAddButton
             onMouseEnter={() => setHoverButton(true)}
             onMouseLeave={() => setHoverButton(false)}
-            onClick={() => dispatch(setActive(true))}
+            onClick={() => {
+              dispatch(setEditEvaluacion(false)),
+                dispatch(setEvaluacionSelected(undefined)),
+                dispatch(setActive(true));
+            }}
           >
             <Image
               src={hoverButton ? AddButtonSelectedPNG : AddButtonPNG}
@@ -130,8 +126,9 @@ const EvaluacionesPage: React.FC = () => {
         <SearchBox array={evaluacionesHechas} type="EVALUACION" />
       </MainCardContainer>
       {!modalActive || (
-        <Modal type="EVALUACION" peal_id={pealSeleccionado?.id} />
+        <Modal type="EVALUACION" edit={edit} peal_id={pealSeleccionado?.id} />
       )}
+      {!modalDeleteActive || <DeleteModal type="EVALUACION" />}
     </EvaluacionContainer>
   );
 };

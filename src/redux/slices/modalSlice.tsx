@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { modalState } from "@types";
+import { Dayjs } from "dayjs";
 
 const initialState: modalState = {
   active: undefined,
@@ -16,12 +17,12 @@ const initialState: modalState = {
   // COLABORADOR
   // PROYECTO
   nombre_peal: undefined,
-  comienzo: undefined,
-  fin: undefined,
+  comienzo: null,
+  fin: null,
   // PROYECTO
   // EVALUACION
   nombre_evaluacion: undefined,
-  comienzo_evaluacion: undefined,
+  comienzo_evaluacion: null,
   // EVALUACION
   // PUNTUACION
   adaptacion_cambio: undefined,
@@ -56,10 +57,10 @@ export const modalSlice = createSlice({
       state.egresos = undefined;
       state.peal_id = undefined;
       state.nombre_peal = undefined;
-      state.comienzo = undefined;
-      state.fin = undefined;
+      state.comienzo = null;
+      state.fin = null;
       state.nombre_evaluacion = undefined;
-      state.comienzo_evaluacion = undefined;
+      state.comienzo_evaluacion = null;
       state.adaptacion_cambio = undefined;
       state.habilidades_relacionales = undefined;
       state.comunicacion = undefined;
@@ -108,10 +109,10 @@ export const modalSlice = createSlice({
     setNombrePeal: (state, action: PayloadAction<string | undefined>) => {
       state.nombre_peal = action.payload;
     },
-    setComienzo: (state, action: PayloadAction<string | undefined>) => {
+    setComienzo: (state, action: PayloadAction<Dayjs | null>) => {
       state.comienzo = action.payload;
     },
-    setFin: (state, action: PayloadAction<string | undefined>) => {
+    setFin: (state, action: PayloadAction<Dayjs | null>) => {
       state.fin = action.payload;
     },
     // PROYECTO
@@ -119,10 +120,7 @@ export const modalSlice = createSlice({
     setNombreEvaluacion: (state, action: PayloadAction<string | undefined>) => {
       state.nombre_evaluacion = action.payload;
     },
-    setComienzoEvaluacion: (
-      state,
-      action: PayloadAction<string | undefined>,
-    ) => {
+    setComienzoEvaluacion: (state, action: PayloadAction<Dayjs | null>) => {
       state.comienzo_evaluacion = action.payload;
     },
     // EVALUACION

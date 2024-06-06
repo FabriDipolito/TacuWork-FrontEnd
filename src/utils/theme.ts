@@ -22,6 +22,10 @@ interface CustomTheme {
 
         // Componentes
 
+        titleText: {
+          text: string;
+        };
+
         pageLinks: {
           text: string;
         };
@@ -116,6 +120,35 @@ interface CustomTheme {
           };
         };
 
+        Perfil : {
+          photo: string;
+          card: {
+            background: string;
+            border: string;
+            title: string;
+            table: {
+              text: string;
+              border: string;
+              background: string;
+            };
+          };
+          proyectos: {
+            border: string;
+            text: string;
+          };
+          personal: {
+            background: string;
+            border: string;
+            label: string;
+            input: {
+              text: string;
+              placeholder: string;
+              border: string;
+              background: string;
+            };
+          }
+        };
+
         // Componentes
 
     };
@@ -139,8 +172,18 @@ interface CustomTheme {
           fontWeight: number | string;
           lineHeight: string;
         };
+
+        titleText: {
+          fontSize: string;
+          fontWeight: number | string;
+        };
         
         pageLinks: {
+          fontSize: string;
+          fontWeight: number | string;
+        };
+
+        chips: {
           fontSize: string;
           fontWeight: number | string;
         };
@@ -223,6 +266,38 @@ interface CustomTheme {
         };
       };
       
+      Perfil : {
+        card: {
+          title: {
+            fontSize: string;
+            fontWeight: number | string;
+          };
+          edit: {
+            fontSize: string;
+            fontWeight: number | string;
+          };
+          table: {
+            fontSize: string;
+            fontWeight: number | string;
+          };
+        };
+        proyectos: {
+          fontSize: string;
+          fontWeight: number | string;
+        };
+        personal : {
+          card : {
+            label: {
+              fontSize: string;
+              fontWeight: number | string;
+            };
+            input: {
+              fontSize: string;
+              fontWeight: number | string;
+            };
+          };
+        };
+      };
 
       Login : {
         label: {
@@ -277,6 +352,10 @@ const theme = createTheme({
         // Palette of Colors
 
         // Componentes
+
+        titleText: {
+          text: "#1E1E31",
+        },
 
         pageLinks: {
           text: "#1E1E31",
@@ -373,6 +452,35 @@ const theme = createTheme({
           },
         },
 
+        Perfil : {
+          photo: "#E2E2E5",
+          card: {
+            background: "#F4F4F5",
+            border: "rgba(0, 0, 0, 0.2)",
+            title: "#1E1E31",
+            table: {
+              text: "rgba(0, 0, 0, 0.7)",
+              border: "rgba(0, 0, 0, 0.1)",
+              background: "#FBFBFB",
+            },
+          },
+          proyectos: {
+            border: "#E2E2E5",
+            text: "#AEAEB8",
+          },
+          personal: {
+            background: "#F4F4F5",
+            border: "rgba(0, 0, 0, 0.2)",
+            label: "rgba(0, 0, 0, 0.7)",
+            input: {
+              text: "#000000",
+              placeholder: "#AEAEB8",
+              border: "rgba(0, 0, 0, 0.2)",
+              background: "#FBFBFB",
+            },
+          },
+        },
+
         // Componentes
     },
     customSizes: {
@@ -394,9 +502,19 @@ const theme = createTheme({
         fontWeight: 600,
         lineHeight: "16px",
       },
+
+      titleText: {
+        fontSize: "18px",
+        fontWeight: 400,
+      },
       
       pageLinks: {
         fontSize: "14px",
+        fontWeight: 400,
+      },
+
+      chips: {
+        fontSize: "10px",
         fontWeight: 400,
       },
 
@@ -475,6 +593,39 @@ const theme = createTheme({
         button: {
           fontSize: "14px",
           fontWeight: 400,
+        },
+      },
+
+      Perfil : {
+        card: {
+          title: {
+            fontSize: "15px",
+            fontWeight: 400,
+          },
+          edit: {
+            fontSize: "10px",
+            fontWeight: 400,
+          },
+          table: {
+            fontSize: "9px",
+            fontWeight: 400,
+          },
+        },
+        proyectos: {
+          fontSize: "10px",
+          fontWeight: 400,
+        },
+        personal : {
+          card : {
+            label: {
+              fontSize: "10px",
+              fontWeight: 400,
+            },
+            input: {
+              fontSize: "13px",
+              fontWeight: 400,
+            },
+          },
         },
       },
 

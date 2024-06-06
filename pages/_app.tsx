@@ -43,7 +43,7 @@ function MyApp({
           crossOrigin="anonymous"
         />
       </Head>
-      <SessionProvider session={session} basePath="/api/auth">
+      <SessionProvider session={session}>
         <ThemeProvider theme={theme}>
           <Provider store={store}>
             <CssBaseline />

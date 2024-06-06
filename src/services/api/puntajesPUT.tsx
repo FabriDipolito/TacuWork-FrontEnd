@@ -39,9 +39,6 @@ export const PuntajePUT = async (
       },
     );
 
-    console.log(presencia);
-    console.log(proactividad);
-
     if (response.ok) {
       const data = await response.json();
       return data;

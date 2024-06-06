@@ -7,6 +7,9 @@ import searchBoxSlice from "./slices/searchBoxSlice";
 import modalSlice from "./slices/modalSlice";
 import proyectosSlice from "./slices/proyectosSlice";
 import participantesEvaluacionSlice from "./slices/participantesEvaluacionSlice";
+import perfilColaboradoresSlice from "./slices/perfilColaboradoresSlice";
+import perfilProyectoSlice from "./slices/perfilProyectosSlice";
+import modalDeleteSlice from "./slices/modalDeleteSlice";
 
 const store = configureStore({
   reducer: {
@@ -14,9 +17,12 @@ const store = configureStore({
     colaborador: colaboradoresSlice,
     proyecto: proyectosSlice,
     evaluacion: evaluacionesSlice,
+    perfil: perfilColaboradoresSlice,
+    perfilProyecto: perfilProyectoSlice,
     participantesEvaluacion: participantesEvaluacionSlice,
     searchBox: searchBoxSlice,
     modal: modalSlice,
+    modalDelete: modalDeleteSlice,
     analisis: analisisSlice,
   },
 });

@@ -29,6 +29,9 @@ import { SearchBox } from "src/components/SearchBox/SearchBox";
 import { colaboradoresGET } from "src/services/api/allColaboradoresGET";
 import { Modal } from "src/components/Modal/Modal";
 import { setActive } from "@redux/slices/modalSlice";
+import { setEditProyecto } from "@redux/slices/proyectosSlice";
+import { DeleteModal } from "src/components/Modal/DeleteModal/DeleteModal";
+import { setProyectoPerfil } from "@redux/slices/perfilProyectosSlice";
 
 const ProyectosPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -37,7 +40,9 @@ const ProyectosPage: React.FC = () => {
   const pealSeleccionado = useAppSelector(
     (state) => state.proyecto.pealSelected,
   );
+  const edit = useAppSelector((state) => state.proyecto.edit);
   const modalActive = useAppSelector((state) => state.modal.active);
+  const modalDeleteActive = useAppSelector((state) => state.modalDelete.active);
 
   const [hoverButton, setHoverButton] = useState(false);
 
@@ -72,7 +77,11 @@ const ProyectosPage: React.FC = () => {
           <ProyectosAddButton
             onMouseEnter={() => setHoverButton(true)}
             onMouseLeave={() => setHoverButton(false)}
-            onClick={() => dispatch(setActive(true))}
+            onClick={() => {
+              dispatch(setEditProyecto(false)),
+                dispatch(setProyectoPerfil(undefined)),
+                dispatch(setActive(true));
+            }}
           >
             <Image
               src={hoverButton ? AddButtonSelectedPNG : AddButtonPNG}
@@ -92,7 +101,8 @@ const ProyectosPage: React.FC = () => {
         </TextBoxContainer>
         <SearchBox type="PROYECTO" array={peales} />
       </MainCardContainer>
-      {!modalActive || <Modal type="PROYECTO" />}
+      {!modalActive || <Modal type="PROYECTO" edit={edit} />}
+      {!modalDeleteActive || <DeleteModal type="PROYECTO" />}
     </ProyectosContainer>
   );
 };

@@ -4,6 +4,7 @@ import { EvaluacionProps, evaluacionState, PealProps } from "@types";
 const initialState: evaluacionState = {
   pealSelected: undefined,
   evaluacionesHechas: [],
+  edit: true,
 };
 
 export const evaluacionesSlice = createSlice({
@@ -19,10 +20,13 @@ export const evaluacionesSlice = createSlice({
     ) => {
       state.evaluacionesHechas = action.payload;
     },
+    setEditEvaluacion: (state, action: PayloadAction<boolean>) => {
+      state.edit = action.payload;
+    },
   },
 });
 
-export const { setPealSelected, setEvaluacionesHechas } =
+export const { setPealSelected, setEvaluacionesHechas, setEditEvaluacion } =
   evaluacionesSlice.actions;
 
 export default evaluacionesSlice.reducer;

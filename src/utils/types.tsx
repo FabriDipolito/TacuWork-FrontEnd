@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
 
+import { Dayjs } from "dayjs";
+
 // Props
 
 export interface ColaboradorProps {
@@ -13,6 +15,12 @@ export interface ColaboradorProps {
   nivel_educativo: string;
   egresos: string;
   peal_id: number;
+  imagen: string | null;
+  banco?: string;
+  sucursal?: string;
+  numero_cuenta?: string;
+  nombre_emergencia?: string;
+  telefono_emergencia?: string;
 }
 
 export interface PealProps {
@@ -61,23 +69,41 @@ export type generalState = {
 export type colaboradorState = {
   colaboradorSelected: ColaboradorProps | undefined,
   pealSelected: PealProps | undefined,
+  edit: boolean;
 };
 
 export type proyectoState = {
   pealSelected: PealProps | undefined,
+  edit: boolean;
 };
 
 export type evaluacionState = {
   pealSelected: PealProps | undefined,
   evaluacionesHechas: Array<EvaluacionProps>,
+  edit: boolean;
 };
 
 export type participantesEvaluacionState = {
-  linkSelected: "PARTICIPANTES" | "TABLERO";
   colaboradorSelected: ColaboradorProps | undefined,
   pealSelected: PealProps | undefined;
   evaluacionSelected: EvaluacionProps | undefined,
   puntajes: Array<PuntajeProps> | undefined,
+};
+
+export type perfilState = {
+  linkSelected: "PERFIL" | "PERSONAL";
+  colaboradorSelected: ColaboradorProps | undefined,
+  srcImage: string | null,
+  banco: string | undefined | null,
+  sucursal: string| undefined | null,
+  numero_cuenta: string | undefined | null,
+  nombre_emergencia: string | undefined | null,
+  telefono_emergencia: string | undefined | null,
+};
+
+export type perfilProyectoState = {
+  linkSelected: "PROYECTO" | "PARTICIPANTES";
+  pealSelected: PealProps | undefined,
 };
 
 export type searchBoxState = {
@@ -104,12 +130,12 @@ export type modalState = {
   //COLABORADOR
   //PROYECTO
   nombre_peal: string | undefined,
-  comienzo: string | undefined,
-  fin: string | undefined,
+  comienzo: Dayjs | null,
+  fin: Dayjs | null,
   //PROYECTO
   //EVALUACION
   nombre_evaluacion: string | undefined,
-  comienzo_evaluacion: string | undefined,
+  comienzo_evaluacion: Dayjs | null,
   //EVALUACION
   //PUNTUACION
   adaptacion_cambio: number | undefined,
@@ -126,18 +152,57 @@ export type modalState = {
   //PUNTUACION
 };
 
+export type modalDeleteState = {
+  active: boolean | undefined,
+  colaboradorSelected: ColaboradorProps | undefined,
+  pealSelected: PealProps | undefined,
+  evaluacionSelected: EvaluacionProps | undefined,
+  puntajeSelected: PuntajeProps | undefined,
+};
+
 export interface DataProps {
   criterio: string;
   [key: string]: any;
+}
+
+export interface LineProps {
+  id: string;
+  color: string;
+  data: Array<{x: string, y: number}>;
 }
 
 export type analisisState = {
   linkSelected: "TRABAJADOR" | "PROYECTO" | "COMPARACION";
   radarData: Array<DataProps>;
   keyArray: Array<string>;
+  lineData: Array<LineProps>;
+  promedioGeneral: number | undefined;
+  promedioGeneral2: number | undefined;
+  caracteristicaMejor: { nombre: string, valor: number } | undefined;
+  caracteristicaPeor: { nombre: string, valor: number } | undefined;
   trabajadorSelected: ColaboradorProps | undefined;
-  primerPealSelected: PealProps | undefined,
-  segundoPealSelected: PealProps | undefined,
+  proyectoPealSelected: PealProps | undefined;
+  primerPealSelected: PealProps | undefined;
+  segundoPealSelected: PealProps | undefined;
 };
+
+export type dataColaboradorDelete = {
+  deleted_ids: number[],
+}
+
+export type dataPealDelete = {
+  deleted_ids: number[],
+}
+
+export type dataEvaluacionDelete = {
+  deleted_ids: number[],
+}
+
+export type dataPuntajeDelete = {
+
+    deleted_records: { colaborador_id: number, evaluacion_id: number }[],
+    message: string,
+
+}
 
 // Estados

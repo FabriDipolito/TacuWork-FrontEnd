@@ -1,7 +1,9 @@
+import { Dayjs } from "dayjs";
+
 export const PealPOST = async (
   nombre: string,
-  comienzo: string,
-  fin: string,
+  comienzo: Dayjs | null,
+  fin: Dayjs | null,
 ) => {
   const pealData = {
     nombre: nombre,

@@ -29,6 +29,9 @@ import { SearchBox } from "src/components/SearchBox/SearchBox";
 import { colaboradoresGET } from "src/services/api/allColaboradoresGET";
 import { Modal } from "src/components/Modal/Modal";
 import { setActive } from "@redux/slices/modalSlice";
+import { setEditColaborador } from "@redux/slices/colaboradoresSlice";
+import { DeleteModal } from "src/components/Modal/DeleteModal/DeleteModal";
+import { setColaboradorPerfil } from "@redux/slices/perfilColaboradoresSlice";
 
 const ColaboradoresPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -40,7 +43,9 @@ const ColaboradoresPage: React.FC = () => {
   const pealSeleccionado = useAppSelector(
     (state) => state.colaborador.pealSelected,
   );
+  const edit = useAppSelector((state) => state.colaborador.edit);
   const modalActive = useAppSelector((state) => state.modal.active);
+  const modalDeleteActive = useAppSelector((state) => state.modalDelete.active);
 
   const [hoverButton, setHoverButton] = useState(false);
 
@@ -75,7 +80,11 @@ const ColaboradoresPage: React.FC = () => {
           <ColaboradoresAddButton
             onMouseEnter={() => setHoverButton(true)}
             onMouseLeave={() => setHoverButton(false)}
-            onClick={() => dispatch(setActive(true))}
+            onClick={() => {
+              dispatch(setEditColaborador(false)),
+                dispatch(setColaboradorPerfil(undefined)),
+                dispatch(setActive(true));
+            }}
           >
             <Image
               src={hoverButton ? AddButtonSelectedPNG : AddButtonPNG}
@@ -95,7 +104,8 @@ const ColaboradoresPage: React.FC = () => {
         </TextBoxContainer>
         <SearchBox type="COLABORADOR" array={colaboradores} />
       </MainCardContainer>
-      {!modalActive || <Modal type="COLABORADOR" />}
+      {!modalActive || <Modal type="COLABORADOR" edit={edit} />}
+      {!modalDeleteActive || <DeleteModal type="COLABORADOR" />}
     </ColaboradoresContainer>
   );
 };

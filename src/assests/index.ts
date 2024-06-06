@@ -1,20 +1,36 @@
 /* eslint-disable prettier/prettier */
 export { default as AddButtonPNG } from "./PNG/AddButton.png";
 export { default as AddButtonSelectedPNG } from "./PNG/AddButtonSelected.png";
+export { default as AddPhotoPerfilPNG } from "./PNG/AddPhotoPerfil.png";
 export { default as AnalisisIconActivoPNG } from "./PNG/AnalisisIconActivo.png";
 export { default as AnalisisIconInactivoPNG } from "./PNG/AnalisisIconInactivo.png";
+export { default as CloseModalPNG } from "./PNG/closeModal.png";
 export { default as ColaboradoresIconPNG } from "./PNG/ColaboradoresIcon.png";
 export { default as ColaboradoresIconActivoPNG } from "./PNG/ColaboradoresIconActivo.png";
 export { default as ColaboradoresIconInactivoPNG } from "./PNG/ColaboradoresIconInactivo.png";
+export { default as ContactoEmergenciaIconPNG } from "./PNG/ContactoEmergenciaIcon.png";
+export { default as EditPencilPNG } from "./PNG/EditPencil.png";
+export { default as EditPencilHoverPNG } from "./PNG/EditPencilHover.png";
 export { default as EvaluacionIconPNG } from "./PNG/EvaluacionIcon.png";
 export { default as EvaluacionIconActivoPNG } from "./PNG/EvaluacionIconActivo.png";
 export { default as EvaluacionIconInactivoPNG } from "./PNG/EvaluacionIconInactivo.png";
 export { default as FilterSelectIconPNG } from "./PNG/FilterSelectIcon.png";
 export { default as GroupFilterSelectIconPNG } from "./PNG/GroupFilterSelectIcon.png";
+export { default as InformacionBancariaIconPNG } from "./PNG/InformacionBancariaIcon.png";
+export { default as InformacionTrabajoIconPNG } from "./PNG/InformacionTrabajadorIcon.png";
+export { default as LogOutPNG } from "./PNG/LogOut.png";
+export { default as LogOutHoverPNG } from "./PNG/LogOutHover.png";
 export { default as ParticipantesIconPNG } from "./PNG/ParticipantesIcon.png";
+export { default as PealPerfilIconPNG } from "./PNG/pealPerfilIcon.png";
+export { default as PlusEditButtonPNG } from "./PNG/PlusEditButton.png";
+export { default as PlusEditButtonUnActivePNG } from "./PNG/PlusEditButtonUnActive.png";
+export { default as ProyectosGroupIconPNG } from "./PNG/ProyectosGroupIcon.png";
 export { default as ProyectosIconPNG } from "./PNG/ProyectosIcon.png";
 export { default as ProyectosIconActivoPNG } from "./PNG/ProyectosIconActivo.png";
 export { default as ProyectosIconInactivoPNG } from "./PNG/ProyectosIconInactivo.png";
 export { default as SearchSelectIconPNG } from "./PNG/SearchSelectIcon.png";
 export { default as TacuWorkLoginPNG } from "./PNG/TacuWorkLogin.png";
 export { default as TacuWorkLogoPNG } from "./PNG/TacuWorkLogoPNG.png";
+export { default as TrashDeleteButtonPNG } from "./PNG/TrashDeleteButton.png";
+export { default as WarningDeletePNG } from "./PNG/WarningDelete.png";
+

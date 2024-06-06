@@ -1,18 +1,15 @@
-import { format, parseISO } from "date-fns";
+import { Dayjs } from "dayjs";
 
 export const EvaluacionPOST = async (
   nombre: string,
-  comienzo: string,
-  ultima_actualizacion: string,
+  comienzo: Dayjs | null,
+  ultima_actualizacion: Dayjs | null,
   peal_id: number,
 ) => {
-  const formattedComienzo = format(parseISO(comienzo), "yyyy-MM-dd");
-  const formattedDate = format(parseISO("2024-02-21"), "yyyy-MM-dd");
-
   const evaluacionData = {
     nombre: nombre,
-    comienzo: formattedComienzo,
-    ultima_actualizacion: formattedDate,
+    comienzo: comienzo,
+    ultima_actualizacion: ultima_actualizacion,
     peal_id: peal_id,
   };
 

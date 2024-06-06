@@ -1,4 +1,5 @@
-import { TextField, Typography, styled } from "@mui/material";
+import { MenuItem, Select, TextField, Typography, styled } from "@mui/material";
+import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 
 export const ModalBackground = styled("div")(({ theme }) => {
   return {
@@ -33,8 +34,20 @@ export const Header = styled("div")(() => {
   return {
     display: "flex",
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
+    gap: "16px",
+    height: "fit-content",
+  };
+});
+
+export const TextPhotoContianer = styled("div")(() => {
+  return {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    width: "fit-content",
     gap: "16px",
     height: "fit-content",
   };
@@ -49,11 +62,26 @@ export const Photo = styled("div")(() => {
   };
 });
 
+export const CloseModalContainer = styled("div")(() => {
+  return {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "22px",
+    height: "22px",
+    cursor: "pointer",
+    borderRadius: "16px",
+    ":hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.2)",
+    },
+  };
+});
+
 export const TitleBox = styled("div")(() => {
   return {
     display: "flex",
     flexDirection: "column",
-    width: "100%",
+    width: "fit-content",
     height: "fit-content",
   };
 });
@@ -162,6 +190,103 @@ export const InputText = styled(TextField)(({ theme }) => {
     },
     ".MuiInputAdornment-root": {
       width: "15px",
+    },
+  };
+});
+
+interface FilterComponentProps {
+  placeholder?: boolean;
+}
+
+export const SelectText = styled(Select)<FilterComponentProps>(({
+  theme,
+  placeholder = true,
+}) => {
+  return {
+    width: "100%",
+    height: "33px",
+    backgroundColor: theme.customPalette.Perfil.personal.input.background,
+    border: `1px solid ${theme.customPalette.Perfil.personal.input.border}`,
+    borderRadius: "6px",
+    ".MuiOutlinedInput-notchedOutline": {
+      border: "none !important",
+      height: "33px",
+    },
+    ".MuiInputBase-input": {
+      height: "33px",
+      padding: "0px !important",
+      fontSize: `${theme.customSizes.Perfil.personal.card.input.fontSize}`,
+      fontWeight: `${theme.customSizes.Perfil.personal.card.input.fontWeight}`,
+      borderRadius: "6px",
+      marginTop: placeholder ? "-1px" : "10px",
+      marginLeft: placeholder ? "0px" : "0px",
+      color: `${theme.customPalette.Perfil.personal.input.text}`,
+      "&::placeholder": {
+        color: `${theme.customPalette.Perfil.personal.input.placeholder}`,
+      },
+    },
+    ".MuiInputBase-root": {
+      paddingLeft: "10px",
+    },
+    ".MuiInputAdornment-root": {
+      width: "15px",
+    },
+  };
+});
+
+export const FilterPlaceholder = styled(Typography)(({ theme }) => {
+  return {
+    fontSize: `${theme.customSizes.Perfil.personal.card.input.fontSize}`,
+    fontWeight: `${theme.customSizes.Perfil.personal.card.input.fontWeight}`,
+    color: `${theme.customPalette.Perfil.personal.input.placeholder}`,
+    cursor: "pointer",
+  };
+});
+
+export const SelectOptions = styled(MenuItem)(({ theme }) => {
+  const {
+    customPalette: { white },
+  } = theme;
+
+  return {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: "20px",
+    backgroundColor: white,
+    whiteSpace: "normal",
+    wordBreak: "break-all",
+    "&.Mui-selected": {
+      backgroundColor: "rgba(247, 178, 0, 0.05)",
+    },
+  };
+});
+
+export const DateSelect = styled(MobileDatePicker)(({ theme }) => {
+  return {
+    width: "100%",
+    height: "33px",
+    backgroundColor: theme.customPalette.Perfil.personal.input.background,
+    border: `1px solid ${theme.customPalette.Perfil.personal.input.border}`,
+    borderRadius: "6px",
+    ".MuiOutlinedInput-notchedOutline": {
+      border: "none !important",
+      height: "33px",
+    },
+    ".MuiInputBase-input": {
+      height: "33px",
+      padding: "0px !important",
+      fontSize: `${theme.customSizes.Perfil.personal.card.input.fontSize}`,
+      fontWeight: `${theme.customSizes.Perfil.personal.card.input.fontWeight}`,
+      borderRadius: "6px",
+      color: `${theme.customPalette.Perfil.personal.input.text}`,
+      "&::placeholder": {
+        color: `${theme.customPalette.Perfil.personal.input.placeholder}`,
+      },
+    },
+    ".MuiInputBase-root": {
+      paddingLeft: "10px",
     },
   };
 });

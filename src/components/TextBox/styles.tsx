@@ -2,9 +2,11 @@ import { Typography, styled } from "@mui/material";
 
 export const ColumnContainer = styled("div")(() => {
   return {
+    display: "flex",
+    flexDirection: "column",
     width: "fit-content",
-    maxWidth: "272px",
-    gap: "8px",
+    maxWidth: "350px",
+    gap: "4px",
     height: "fit-content",
   };
 });

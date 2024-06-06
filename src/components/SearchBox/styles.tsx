@@ -258,11 +258,11 @@ export const TRow = styled("tr")<TRowProps>(({ theme, subHeader = false }) => {
     width: "100%",
     cursor: subHeader ? "default" : "pointer",
     height: subHeader ? "33px" : "58px",
-    ":hover": {
-      backgroundColor: subHeader
-        ? "#F4F4F5"
-        : theme.customPalette.Modal.background,
-    },
+    // ":hover": {
+    //   backgroundColor: subHeader
+    //     ? "#F4F4F5"
+    //     : theme.customPalette.Modal.background,
+    // },
   };
 });
 
@@ -344,7 +344,7 @@ export const TD = styled("td")<TDProps>(({ theme, firstColumn = false }) => {
     whiteSpace: "normal",
     borderBottom: `1px solid ${bodyPalette.borderColor}`,
     width: firstColumn ? "200px" : "575px",
-    paddingLeft: firstColumn ? "40px" : "0px",
+    paddingLeft: firstColumn ? "20px" : "0px",
   };
 });
 
@@ -358,5 +358,33 @@ export const FooterText = styled(Typography)(({ theme }) => {
     fontSize: SearchBoxSize.footer.fontSize,
     fontWeight: SearchBoxSize.footer.fontWeight,
     color: SearchBoxPalette.footer.text,
+  };
+});
+
+export const EditPencilContainer = styled("div")(() => {
+  return {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "22px",
+    height: "22px",
+    borderRadius: "13px",
+    ":hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.2)",
+    },
+  };
+});
+
+export const DeleteTrashContainer = styled("div")(() => {
+  return {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "22px",
+    height: "22px",
+    borderRadius: "13px",
+    ":hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.2)",
+    },
   };
 });

@@ -35,7 +35,6 @@ export const ColaboradorPOST = async (
 
     if (response.ok) {
       const data = await response.json();
-      console.log(response);
       return data;
     } else {
       console.error(

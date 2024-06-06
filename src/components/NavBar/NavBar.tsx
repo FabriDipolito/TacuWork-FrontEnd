@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnContainer,
   LinkContent,
   LinkText,
   LinksContainer,
   LogoContainer,
+  LogoutContainer,
   StyledNavBar,
 } from "./styles";
 import Image from "next/image";
@@ -18,13 +19,32 @@ import {
   ProyectosIconInactivoPNG,
   EvaluacionIconInactivoPNG,
   AnalisisIconInactivoPNG,
+  LogOutPNG,
+  LogOutHoverPNG,
 } from "../../assests";
-import { ANALISIS, COLABORADORES, EVALUACIONES, PROYECTOS } from "@constants";
+import {
+  ANALISIS,
+  CERRAR_SESSION,
+  COLABORADORES,
+  EVALUACIONES,
+  PROYECTOS,
+} from "@constants";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import router, { useRouter } from "next/router";
 
 const NavBar: React.FC = () => {
   const route = useRouter();
+  const [isFocused1, setIsFocused1] = useState(false);
+
+  const handleFocus1 = () => {
+    setIsFocused1(true);
+    console.log("entro");
+  };
+
+  const handleBlur1 = () => {
+    setIsFocused1(false);
+    console.log("se fue");
+  };
 
   return (
     <StyledNavBar>
@@ -33,6 +53,30 @@ const NavBar: React.FC = () => {
           <Image src={TacuWorkLogoPNG} height={50} width={90} alt="" />
         </LogoContainer>
         <LinksContainer>
+          <Link href="/Analisis" style={{ textDecoration: "none" }}>
+            <LinkContent>
+              <div style={{ height: "14px", width: "18px" }}>
+                {route.pathname == "/Analisis" ? (
+                  <Image
+                    src={AnalisisIconActivoPNG}
+                    height={14}
+                    width={18}
+                    alt=""
+                  />
+                ) : (
+                  <Image
+                    src={AnalisisIconInactivoPNG}
+                    height={14}
+                    width={18}
+                    alt=""
+                  />
+                )}
+              </div>
+              <LinkText selected={route.pathname == "/Analisis"} logout={false}>
+                {ANALISIS}
+              </LinkText>
+            </LinkContent>
+          </Link>
           <Link href="/Colaboradores" style={{ textDecoration: "none" }}>
             <LinkContent>
               <div style={{ height: "15px", width: "20px" }}>
@@ -52,7 +96,10 @@ const NavBar: React.FC = () => {
                   />
                 )}
               </div>
-              <LinkText selected={route.pathname == "/Colaboradores"}>
+              <LinkText
+                selected={route.pathname == "/Colaboradores"}
+                logout={false}
+              >
                 {COLABORADORES}
               </LinkText>
             </LinkContent>
@@ -76,7 +123,10 @@ const NavBar: React.FC = () => {
                   />
                 )}
               </div>
-              <LinkText selected={route.pathname == "/Proyectos"}>
+              <LinkText
+                selected={route.pathname == "/Proyectos"}
+                logout={false}
+              >
                 {PROYECTOS}
               </LinkText>
             </LinkContent>
@@ -100,37 +150,35 @@ const NavBar: React.FC = () => {
                   />
                 )}
               </div>
-              <LinkText selected={route.pathname == "/Evaluaciones"}>
+              <LinkText
+                selected={route.pathname == "/Evaluaciones"}
+                logout={false}
+              >
                 {EVALUACIONES}
-              </LinkText>
-            </LinkContent>
-          </Link>
-          <Link href="/Analisis" style={{ textDecoration: "none" }}>
-            <LinkContent>
-              <div style={{ height: "14px", width: "18px" }}>
-                {route.pathname == "/Analisis" ? (
-                  <Image
-                    src={AnalisisIconActivoPNG}
-                    height={14}
-                    width={18}
-                    alt=""
-                  />
-                ) : (
-                  <Image
-                    src={AnalisisIconInactivoPNG}
-                    height={14}
-                    width={18}
-                    alt=""
-                  />
-                )}
-              </div>
-              <LinkText selected={route.pathname == "/Analisis"}>
-                {ANALISIS}
               </LinkText>
             </LinkContent>
           </Link>
         </LinksContainer>
       </ColumnContainer>
+      <LogoutContainer
+        onClick={() => router.push("/auth/logout")}
+        onMouseEnter={handleFocus1}
+        onMouseLeave={handleBlur1}
+      >
+        <LinkContent>
+          <div style={{ height: "25px", width: "25px" }}>
+            <Image
+              src={isFocused1 ? LogOutHoverPNG : LogOutPNG}
+              height={22}
+              width={22}
+              alt=""
+            />
+          </div>
+          <LinkText selected={false} logout>
+            {CERRAR_SESSION}
+          </LinkText>
+        </LinkContent>
+      </LogoutContainer>
     </StyledNavBar>
   );
 };
