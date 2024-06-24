@@ -62,7 +62,7 @@ const NavBar: React.FC = () => {
           <Link href="/Ranking" style={{ textDecoration: "none" }}>
             <LinkContent>
               <div style={{ height: "18px", width: "18px" }}>
-                {route.pathname == "/Ranking" ? (
+                {route.pathname == "/Ranking" || route.pathname == "/" ? (
                   <Image
                     src={RankingIconActivePNG}
                     height={20}
