@@ -1,4 +1,5 @@
 import { MenuItem, Select, TextField, Typography, styled } from "@mui/material";
+import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 
 export const ColumnContainer = styled("div")(() => {
   return {
@@ -104,7 +105,7 @@ export const StyledSelect = styled(Select)(({ theme }) => {
   } = theme;
 
   return {
-    width: "123px",
+    width: "115px",
     height: "35px",
     paddingLeft: "11px",
     backgroundColor: SearchBoxPalette.header.filter.background,
@@ -178,7 +179,7 @@ export const SearchBar = styled(TextField)(({ theme }) => {
   } = theme;
 
   return {
-    width: "100%",
+    flexGrow: 1,
     height: "35px",
     textDecorationLine: "none",
     backgroundColor: SearchBoxPalette.header.search.background,
@@ -386,5 +387,74 @@ export const DeleteTrashContainer = styled("div")(() => {
     ":hover": {
       backgroundColor: "rgba(0, 0, 0, 0.2)",
     },
+  };
+});
+
+export const InputBox = styled("div")(() => {
+  return {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0px",
+    width: "150px",
+    height: "50px",
+    marginTop: "-9px",
+  };
+});
+
+export const InputTitle = styled(Typography)(({ theme }) => {
+  return {
+    fontSize: "8px",
+    fontWeight: theme.customSizes.Modal.input.title.fontWeight,
+    color: theme.customPalette.Modal.modal.input.title,
+    marginBottom: "-2px",
+  };
+});
+
+export const DateSelect = styled(MobileDatePicker)(({ theme }) => {
+  return {
+    width: "150px",
+    height: "33px",
+    backgroundColor: "white",
+    border: `1px solid ${theme.customPalette.Perfil.personal.input.border}`,
+    borderRadius: "6px",
+    ".MuiOutlinedInput-notchedOutline": {
+      border: "none !important",
+      height: "33px",
+    },
+    ".MuiInputBase-input": {
+      height: "33px",
+      padding: "0px !important",
+      fontSize: `${theme.customSizes.Perfil.personal.card.input.fontSize}`,
+      fontWeight: `${theme.customSizes.Perfil.personal.card.input.fontWeight}`,
+      borderRadius: "6px",
+      color: `${theme.customPalette.Perfil.personal.input.text}`,
+      "&::placeholder": {
+        color: `${theme.customPalette.Perfil.personal.input.placeholder}`,
+      },
+    },
+    ".MuiInputBase-root": {
+      paddingLeft: "10px",
+    },
+  };
+});
+
+export const SeparatorBox = styled("div")(() => {
+  return {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "fit-content",
+    height: "100%",
+    marginRight: "-3px",
+    marginLeft: "-3px",
+  };
+});
+
+export const SeparatorText = styled(Typography)(({ theme }) => {
+  return {
+    fontSize: "14px",
+    fontWeight: theme.customSizes.Modal.input.title.fontWeight,
+    color: theme.customPalette.Modal.modal.input.title,
   };
 });

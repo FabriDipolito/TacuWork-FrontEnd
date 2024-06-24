@@ -323,23 +323,7 @@ const PerfilPage: React.FC = () => {
                 name={pealSeleccionado?.nombre}
               />
             </TextBoxContainer>
-            <InfoEmergenciaContainer>
-              <ColaboradoresAddButton
-                onMouseEnter={() => setHoverButton(true)}
-                onMouseLeave={() => setHoverButton(false)}
-                onClick={() => dispatch(setActive(true))}
-              >
-                <Image
-                  src={hoverButton ? AddButtonSelectedPNG : AddButtonPNG}
-                  height={14}
-                  width={14}
-                  alt=""
-                />
-                <ButtonText hover={hoverButton}>
-                  {AGREGAR_COLABORADOR}
-                </ButtonText>
-              </ColaboradoresAddButton>
-            </InfoEmergenciaContainer>
+            <InfoEmergenciaContainer></InfoEmergenciaContainer>
             <SearchBox
               type="COLABORADOR"
               array={colaboradores?.filter(

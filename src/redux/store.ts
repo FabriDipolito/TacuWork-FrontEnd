@@ -10,6 +10,8 @@ import participantesEvaluacionSlice from "./slices/participantesEvaluacionSlice"
 import perfilColaboradoresSlice from "./slices/perfilColaboradoresSlice";
 import perfilProyectoSlice from "./slices/perfilProyectosSlice";
 import modalDeleteSlice from "./slices/modalDeleteSlice";
+import encuestasSlice from "./slices/encuestasSlice";
+import encuestasUsuariosSlice from "./slices/encuestasUsuariosSlice";
 
 const store = configureStore({
   reducer: {
@@ -24,6 +26,8 @@ const store = configureStore({
     modal: modalSlice,
     modalDelete: modalDeleteSlice,
     analisis: analisisSlice,
+    encuestas: encuestasSlice,
+    encuestasUsuario: encuestasUsuariosSlice,
   },
 });
 

@@ -16,6 +16,10 @@ import { SearchBox, TextBox } from "@components";
 import { ParticipantesIconPNG } from "src/assests";
 import { Modal } from "src/components/Modal/Modal";
 import { DeleteModal } from "src/components/Modal/DeleteModal/DeleteModal";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 const ParticipantesPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -42,9 +46,30 @@ const ParticipantesPage: React.FC = () => {
           />
         </TextBoxContainer>
         <SearchBox
-          array={colaboradores?.filter(
-            (colaborador) => colaborador.peal_id == pealSeleccionado?.id,
-          )}
+          array={colaboradores
+            ?.filter(
+              (colaborador) => colaborador.peal_id == pealSeleccionado?.id,
+            )
+            ?.filter((colaborador) => {
+              const comienzoColaborador = dayjs.utc(colaborador.comienzo);
+              const finalizacionColaborador = colaborador.finalizacion
+                ? dayjs.utc(colaborador.finalizacion)
+                : null;
+              const comienzoObject = dayjs.utc(
+                evaluacionSeleccionado?.comienzo,
+              );
+
+              if (comienzoColaborador.isValid()) {
+                const comienzoMatch =
+                  comienzoColaborador.isBefore(comienzoObject) ||
+                  comienzoColaborador.isSame(comienzoObject);
+                const finalizacionMatch =
+                  finalizacionColaborador === null ||
+                  finalizacionColaborador.isAfter(comienzoObject) ||
+                  finalizacionColaborador.isSame(comienzoObject);
+                return comienzoMatch && finalizacionMatch;
+              }
+            })}
           type="PARTICIPANTESEVALUACION"
         />
       </MainCardContainer>

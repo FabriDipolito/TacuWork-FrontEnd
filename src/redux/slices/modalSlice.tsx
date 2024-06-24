@@ -14,6 +14,8 @@ const initialState: modalState = {
   barrio: undefined,
   egresos: undefined,
   peal_id: undefined,
+  comienzoColaborador: null,
+  finalizacionColaborador: null,
   // COLABORADOR
   // PROYECTO
   nombre_peal: undefined,
@@ -56,6 +58,8 @@ export const modalSlice = createSlice({
       state.barrio = undefined;
       state.egresos = undefined;
       state.peal_id = undefined;
+      state.comienzoColaborador = null;
+      state.finalizacionColaborador = null;
       state.nombre_peal = undefined;
       state.comienzo = null;
       state.fin = null;
@@ -103,6 +107,15 @@ export const modalSlice = createSlice({
     },
     setPealId: (state, action: PayloadAction<number | undefined>) => {
       state.peal_id = action.payload;
+    },
+    setComienzoColaborador: (state, action: PayloadAction<Dayjs | null>) => {
+      state.comienzoColaborador = action.payload;
+    },
+    setFinalizacionColaborador: (
+      state,
+      action: PayloadAction<Dayjs | null>,
+    ) => {
+      state.finalizacionColaborador = action.payload;
     },
     // COLABORADOR
     // PROYECTO
@@ -184,6 +197,8 @@ export const {
   setBarrio,
   setEgresos,
   setPealId,
+  setComienzoColaborador,
+  setFinalizacionColaborador,
   // COLABORADOR
   // PROYECTO
   setNombrePeal,

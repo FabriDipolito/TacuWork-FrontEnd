@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   ColaboradorProps,
+  EncuestaProps,
   EvaluacionProps,
   generalState,
   PealProps,
@@ -12,6 +13,7 @@ const initialState: generalState = {
   peales: [],
   evaluaciones: [],
   puntajes: [],
+  encuestas: [],
 };
 
 export const generalVariableSlice = createSlice({
@@ -39,10 +41,21 @@ export const generalVariableSlice = createSlice({
     ) => {
       state.puntajes = action.payload;
     },
+    setEncuestas: (
+      state,
+      action: PayloadAction<Array<EncuestaProps> | undefined>,
+    ) => {
+      state.encuestas = action.payload;
+    },
   },
 });
 
-export const { setColaboradores, setPeales, setEvaluaciones, setPuntajes } =
-  generalVariableSlice.actions;
+export const {
+  setColaboradores,
+  setPeales,
+  setEvaluaciones,
+  setPuntajes,
+  setEncuestas,
+} = generalVariableSlice.actions;
 
 export default generalVariableSlice.reducer;

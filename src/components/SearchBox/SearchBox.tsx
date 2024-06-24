@@ -1,16 +1,23 @@
 import React, { ReactNode, useEffect, useState } from "react";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+
 import {
   ColumnContainer,
+  DateSelect,
   DeleteTrashContainer,
   EditPencilContainer,
   FilterText,
   Footer,
   FooterText,
   Header,
+  InputBox,
+  InputTitle,
   SearchBar,
   SearchText,
   SelectOptions,
+  SeparatorBox,
   SeparatorContainer,
+  SeparatorText,
   StyledSelect,
   TBody,
   TD,
@@ -36,23 +43,29 @@ import {
   COLABORADORES,
   COLABORADOR_FILTER,
   COLABORADOR_TAGS,
+  COMIENZO,
   EVALUACIONES,
   EVALUACION_FILTER,
   EVALUACION_TAGS,
   FILTRO,
+  FINALIZACION,
   GRUPO,
   PARTICIPANTES_EVALUACION_FILTER,
   PARTICIPANTES_EVALUACION_TAGS,
   PROYECTOS,
   PROYECTO_FILTER,
+  PROYECTO_PARTICIPANTES_TAGS,
   PROYECTO_TAGS,
+  ROMAN_ICONS,
 } from "@constants";
 import { ColaboradorProps, EvaluacionProps, PealProps } from "@types";
 import { useAppDispatch, useAppSelector } from "@redux/hooks";
 import {
+  setComienzoFilterSelected,
   setFilter,
   setFilterArray,
   setFilterSelected,
+  setFinalizacionFilterSelected,
   setGroupFilter,
   setGroupFilterSelected,
   setSearchFilterSelected,
@@ -90,6 +103,11 @@ import {
   FaOtter,
   FaCrow,
 } from "react-icons/fa";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
+dayjs.extend(utc);
 
 interface SearchBoxProps {
   type?: "COLABORADOR" | "PROYECTO" | "EVALUACION" | "PARTICIPANTESEVALUACION";
@@ -113,6 +131,12 @@ const SearchBox: React.FC<SearchBoxProps> = ({
   );
   const searchFilterSelected = useAppSelector(
     (state) => state.searchBox.searchFilterSelected,
+  );
+  const searchComienzoFilterSelected = useAppSelector(
+    (state) => state.searchBox.comienzoFilter,
+  );
+  const searchFinalizacionFilterSelected = useAppSelector(
+    (state) => state.searchBox.finalizacionFilter,
   );
   const filterArray = useAppSelector((state) => state.searchBox.filterArray);
   const pealParticipantes = useAppSelector(
@@ -143,25 +167,6 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     FaCrow,
   ];
 
-  const romanIcons = [
-    "I",
-    "II",
-    "III",
-    "IV",
-    "V",
-    "VI",
-    "VII",
-    "VIII",
-    "IX",
-    "X",
-    "XI",
-    "XII",
-    "XIII",
-    "XIV",
-    "XV",
-    "XVI",
-  ];
-
   useEffect(() => {
     dispatch(setFilterArray(array));
   }, [array]);
@@ -170,6 +175,8 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     dispatch(setFilterSelected(undefined));
     dispatch(setGroupFilterSelected(undefined));
     dispatch(setSearchFilterSelected(undefined));
+    dispatch(setComienzoFilterSelected(undefined));
+    dispatch(setFinalizacionFilterSelected(undefined));
     if (type == "COLABORADOR") {
       dispatch(setFilter(COLABORADOR_FILTER));
       dispatch(setGroupFilter(peales?.map((peal) => peal.nombre)));
@@ -197,7 +204,9 @@ const SearchBox: React.FC<SearchBoxProps> = ({
       if (
         filterSelected !== undefined ||
         groupFilterSelected !== undefined ||
-        searchFilterSelected !== undefined
+        searchFilterSelected !== undefined ||
+        searchComienzoFilterSelected?.isValid() ||
+        searchFinalizacionFilterSelected?.isValid()
       ) {
         (newArray as Array<ColaboradorProps>)?.sort((a, b) => {
           switch (filterSelected) {
@@ -226,6 +235,61 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                       ?.id == object.peal_id
                   : true,
               )
+              .filter((object) => {
+                const objectComienzo = dayjs.utc(object.comienzo);
+                const objectFinalizacion = object.finalizacion
+                  ? dayjs.utc(object.finalizacion)
+                  : null;
+
+                const filterComienzo = searchComienzoFilterSelected?.isValid()
+                  ? searchComienzoFilterSelected
+                  : null;
+                const filterFinalizacion =
+                  searchFinalizacionFilterSelected?.isValid()
+                    ? searchFinalizacionFilterSelected
+                    : null;
+
+                // Si no hay ambos filtros de fecha, devolver todos los objetos
+                if (!filterComienzo && !filterFinalizacion) {
+                  return true;
+                }
+
+                // Si solo hay filtro de comienzo, considerar intervalo [filterComienzo, infinito]
+                if (filterComienzo && !filterFinalizacion) {
+                  return (
+                    objectComienzo.isSame(filterComienzo) ||
+                    objectComienzo.isAfter(filterComienzo)
+                  );
+                }
+
+                // Si solo hay filtro de finalización, considerar intervalo [-infinito, filterFinalizacion]
+                if (!filterComienzo && filterFinalizacion) {
+                  if (objectFinalizacion) {
+                    return (
+                      objectFinalizacion.isSame(filterFinalizacion) ||
+                      objectFinalizacion.isBefore(filterFinalizacion)
+                    );
+                  } else {
+                    return false;
+                  }
+                }
+
+                // Si hay ambos filtros
+                if (filterComienzo && filterFinalizacion) {
+                  // Verificar si objectFinalizacion no es null
+                  if (objectFinalizacion) {
+                    return (
+                      (objectComienzo.isSame(filterComienzo) ||
+                        objectComienzo.isAfter(filterComienzo)) &&
+                      (objectFinalizacion.isSame(filterFinalizacion) ||
+                        objectFinalizacion.isBefore(filterFinalizacion))
+                    );
+                  } else {
+                    return false;
+                  }
+                }
+                return false;
+              })
               ?.filter((object) =>
                 searchFilterSelected
                   ? object.nombre
@@ -572,6 +636,8 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     filterSelected,
     groupFilterSelected,
     searchFilterSelected,
+    searchComienzoFilterSelected,
+    searchFinalizacionFilterSelected,
     pealParticipantes,
     array,
     puntajes,
@@ -721,7 +787,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     if (index === -1) {
       return "!";
     }
-    const romanNumeral = romanIcons[index % romanIcons.length];
+    const romanNumeral = ROMAN_ICONS[index % ROMAN_ICONS.length];
     return romanNumeral;
   };
 
@@ -791,6 +857,34 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                 </SelectOptions>
               ))}
             </StyledSelect>
+          ) : type == "COLABORADOR" && participantesProyecto ? (
+            <>
+              <InputBox style={{ marginLeft: "2px" }}>
+                <InputTitle>{COMIENZO}</InputTitle>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DateSelect
+                    value={searchComienzoFilterSelected}
+                    onChange={(newDate) =>
+                      dispatch(setComienzoFilterSelected(newDate))
+                    }
+                  />
+                </LocalizationProvider>
+              </InputBox>
+              <SeparatorBox>
+                <SeparatorText>-</SeparatorText>
+              </SeparatorBox>
+              <InputBox>
+                <InputTitle>{FINALIZACION}</InputTitle>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DateSelect
+                    value={searchFinalizacionFilterSelected}
+                    onChange={(newDate) =>
+                      dispatch(setFinalizacionFilterSelected(newDate))
+                    }
+                  />
+                </LocalizationProvider>
+              </InputBox>
+            </>
           ) : (
             <></>
           )}
@@ -831,7 +925,11 @@ const SearchBox: React.FC<SearchBoxProps> = ({
               <TRow subHeader>
                 <TH firstColumn></TH>
                 {type == "COLABORADOR"
-                  ? COLABORADOR_TAGS.map((tag) => <TH key={tag}>{tag}</TH>)
+                  ? participantesProyecto
+                    ? PROYECTO_PARTICIPANTES_TAGS.map((tag) => (
+                        <TH key={tag}>{tag}</TH>
+                      ))
+                    : COLABORADOR_TAGS.map((tag) => <TH key={tag}>{tag}</TH>)
                   : type == "PROYECTO"
                     ? PROYECTO_TAGS.map((tag) => <TH key={tag}>{tag}</TH>)
                     : type == "EVALUACION"
@@ -856,19 +954,21 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                             height: "100%",
                           }}
                         >
-                          <DeleteTrashContainer
-                            onClick={() => {
-                              dispatch(setColaborador(object));
-                              dispatch(setActiveDelete(true));
-                            }}
-                          >
-                            <Image
-                              src={TrashDeleteButtonPNG}
-                              alt=""
-                              width={13}
-                              height={13}
-                            />
-                          </DeleteTrashContainer>
+                          {participantesProyecto || (
+                            <DeleteTrashContainer
+                              onClick={() => {
+                                dispatch(setColaborador(object));
+                                dispatch(setActiveDelete(true));
+                              }}
+                            >
+                              <Image
+                                src={TrashDeleteButtonPNG}
+                                alt=""
+                                width={13}
+                                height={13}
+                              />
+                            </DeleteTrashContainer>
+                          )}
                           {object.imagen ? (
                             <Image
                               src={`data:image/jpeg;base64,${object.imagen}`}
@@ -901,20 +1001,22 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                                 : ""}
                             </Avatar>
                           )}
-                          <EditPencilContainer
-                            onClick={() => {
-                              dispatch(setColaboradorPerfil(object));
-                              dispatch(setEditColaborador(true));
-                              dispatch(setActive(true));
-                            }}
-                          >
-                            <Image
-                              src={EditPencilPNG}
-                              alt=""
-                              width={13}
-                              height={13}
-                            />
-                          </EditPencilContainer>
+                          {participantesProyecto || (
+                            <EditPencilContainer
+                              onClick={() => {
+                                dispatch(setColaboradorPerfil(object));
+                                dispatch(setEditColaborador(true));
+                                dispatch(setActive(true));
+                              }}
+                            >
+                              <Image
+                                src={EditPencilPNG}
+                                alt=""
+                                width={13}
+                                height={13}
+                              />
+                            </EditPencilContainer>
+                          )}
                         </div>
                       </TD>
                       <TD onClick={() => handleColaboradorClick(object)}>
@@ -924,10 +1026,10 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                         {object.apellido}
                       </TD>
                       <TD onClick={() => handleColaboradorClick(object)}>
-                        {
-                          peales?.find((peal) => peal.id == object.peal_id)
-                            ?.nombre
-                        }
+                        {participantesProyecto
+                          ? `${object.comienzo?.substring(5, 16)} / ${object.finalizacion?.substring(5, 16) || "Actualidad"}`
+                          : peales?.find((peal) => peal.id == object.peal_id)
+                              ?.nombre}
                       </TD>
                       <TD onClick={() => handleColaboradorClick(object)}>
                         <div
@@ -1012,7 +1114,9 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                         <TD onClick={() => handlePealClick(object)}>
                           {colaboradores
                             ?.filter(
-                              (colaborador) => colaborador.peal_id == object.id,
+                              (colaborador) =>
+                                colaborador.peal_id == object.id &&
+                                colaborador.egresos == "Activo",
                             )
                             .length.toString()}
                         </TD>
@@ -1131,6 +1235,35 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                                 (colaborador) =>
                                   colaborador.peal_id == object.peal_id,
                               )
+                              ?.filter((colaborador) => {
+                                const comienzoColaborador = dayjs.utc(
+                                  colaborador.comienzo,
+                                );
+                                const finalizacionColaborador =
+                                  colaborador.finalizacion
+                                    ? dayjs.utc(colaborador.finalizacion)
+                                    : null;
+                                const comienzoObject = dayjs.utc(
+                                  object.comienzo,
+                                );
+
+                                if (comienzoColaborador.isValid()) {
+                                  const comienzoMatch =
+                                    comienzoColaborador.isBefore(
+                                      comienzoObject,
+                                    ) ||
+                                    comienzoColaborador.isSame(comienzoObject);
+                                  const finalizacionMatch =
+                                    finalizacionColaborador === null ||
+                                    finalizacionColaborador.isAfter(
+                                      comienzoObject,
+                                    ) ||
+                                    finalizacionColaborador.isSame(
+                                      comienzoObject,
+                                    );
+                                  return comienzoMatch && finalizacionMatch;
+                                }
+                              })
                               .length.toString()}
                           </TD>
                           <TD onClick={() => handleEvaluacionClick(object)}>

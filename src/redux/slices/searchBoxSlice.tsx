@@ -5,6 +5,7 @@ import {
   PealProps,
   searchBoxState,
 } from "@types";
+import { Dayjs } from "dayjs";
 
 const initialState: searchBoxState = {
   filter: [],
@@ -12,6 +13,8 @@ const initialState: searchBoxState = {
   groupFilter: [],
   groupFilterSelected: undefined,
   searchFilterSelected: undefined,
+  comienzoFilter: undefined,
+  finalizacionFilter: undefined,
   filterArray: undefined,
 };
 
@@ -43,6 +46,18 @@ export const searchBoxSlice = createSlice({
     ) => {
       state.searchFilterSelected = action.payload;
     },
+    setComienzoFilterSelected: (
+      state,
+      action: PayloadAction<Dayjs | null | undefined>,
+    ) => {
+      state.comienzoFilter = action.payload;
+    },
+    setFinalizacionFilterSelected: (
+      state,
+      action: PayloadAction<Dayjs | null | undefined>,
+    ) => {
+      state.finalizacionFilter = action.payload;
+    },
     setFilterArray: (
       state,
       action: PayloadAction<
@@ -63,6 +78,8 @@ export const {
   setGroupFilter,
   setGroupFilterSelected,
   setSearchFilterSelected,
+  setComienzoFilterSelected,
+  setFinalizacionFilterSelected,
   setFilterArray,
 } = searchBoxSlice.actions;
 

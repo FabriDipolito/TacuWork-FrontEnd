@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 export const ColaboradorPUT = async (
   colaborador_id: number,
   nombre: string,
@@ -15,6 +17,8 @@ export const ColaboradorPUT = async (
   numero_cuenta?: string | null,
   nombre_emergencia?: string | null,
   telefono_emergencia?: string | null,
+  comienzo?: Dayjs | null,
+  finalizacion?: Dayjs | null,
 ) => {
   const formData = new FormData();
   formData.append("nombre", nombre);
@@ -34,9 +38,10 @@ export const ColaboradorPUT = async (
     formData.append("nombre_emergencia", nombre_emergencia);
   if (telefono_emergencia)
     formData.append("telefono_emergencia", telefono_emergencia);
-  if (imagen) {
-    formData.append("imagen", imagen);
-  }
+  if (imagen) formData.append("imagen", imagen);
+  if (comienzo) formData.append("comienzo", comienzo.format("YYYY-MM-DD"));
+  if (finalizacion)
+    formData.append("finalizacion", finalizacion.format("YYYY-MM-DD"));
 
   const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/colaboradores/${colaborador_id}`;
 

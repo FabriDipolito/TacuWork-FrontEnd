@@ -243,6 +243,15 @@ export const FilterPlaceholder = styled(Typography)(({ theme }) => {
   };
 });
 
+export const FilterEgresos = styled(Typography)(({ theme }) => {
+  return {
+    fontSize: `${theme.customSizes.Perfil.personal.card.input.fontSize}`,
+    fontWeight: `${theme.customSizes.Perfil.personal.card.input.fontWeight}`,
+    color: "black",
+    cursor: "pointer",
+  };
+});
+
 export const SelectOptions = styled(MenuItem)(({ theme }) => {
   const {
     customPalette: { white },
@@ -302,7 +311,14 @@ export const ButtonBox = styled("div")(() => {
   };
 });
 
-export const Button = styled("div")(({ theme }) => {
+interface ButtonProps {
+  available: boolean;
+}
+
+export const Button = styled("div")<ButtonProps>(({
+  theme,
+  available = false,
+}) => {
   return {
     display: "flex",
     justifyContent: "center",
@@ -312,29 +328,39 @@ export const Button = styled("div")(({ theme }) => {
     borderRadius: "17.5px",
     marginBottom: "3px",
     marginRight: "19px",
-    backgroundColor: theme.customPalette.Modal.modal.button.background,
-    border: `2px solid ${theme.customPalette.Modal.modal.button.background}`,
-    cursor: "pointer",
+    backgroundColor: available
+      ? theme.customPalette.Modal.modal.button.background
+      : theme.customPalette.background,
+    border: available
+      ? `2px solid ${theme.customPalette.Modal.modal.button.background}`
+      : `2px solid rgba(0, 0, 0, 0.2)`,
+    cursor: available ? "pointer" : "default",
     ":hover": {
-      backgroundColor: theme.customPalette.Modal.modal.button.text,
+      backgroundColor: available
+        ? theme.customPalette.Modal.modal.button.text
+        : theme.customPalette.background,
     },
   };
 });
 
 interface textProps {
   hover?: boolean;
+  available: boolean;
 }
 
 export const ButtonText = styled(Typography)<textProps>(({
   theme,
   hover = false,
+  available = false,
 }) => {
   return {
     fontSize: theme.customSizes.Modal.button.fontSize,
     fontWeight: theme.customSizes.Modal.button.fontWeight,
-    color: hover
-      ? theme.customPalette.Modal.modal.button.border
-      : theme.customPalette.Modal.modal.button.text,
+    color: available
+      ? hover
+        ? theme.customPalette.Modal.modal.button.border
+        : theme.customPalette.Modal.modal.button.text
+      : `rgba(0, 0, 0, 0.2)`,
     userSelect: "none",
   };
 });

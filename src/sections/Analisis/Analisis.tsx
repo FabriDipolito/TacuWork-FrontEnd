@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import dynamic from "next/dynamic";
 import { ResponsiveRadar } from "@nivo/radar";
+import Image from "next/image";
 import {
   AnalisisContainer,
   HeaderCard,
@@ -30,6 +31,9 @@ import {
   PromedioText,
   PromedioTextSubsContainer,
   LabelPromedioText,
+  ColaboradoresAddButton,
+  ButtonText,
+  AutocompleteContainer,
 } from "./styles";
 import {
   BUSCAR_PEAL,
@@ -37,6 +41,7 @@ import {
   CARACTERISTICAS_DESTACADAS,
   COMPARACION,
   INDIVIDUAL,
+  NUEVO_REPORTE,
   PROMEDIO,
   PROMEDIO_GENERAL,
   PROMEDIO_POR_EVALUACION,
@@ -55,6 +60,7 @@ import {
   setCaracteristicaPeor,
   setLineData,
   setLinkSelected,
+  setModalActive,
   setPrimerPealSelected,
   setPromedioGeneral,
   setPromedioGeneral2,
@@ -76,6 +82,8 @@ import {
   combineRadarDataAndPuntajes,
   obtenerExtremosPuntajes,
 } from "./funciones";
+import { AddButtonPNG, AddButtonSelectedPNG } from "src/assests";
+import { ModalPDF } from "./ModalPdf/ModalPdf";
 
 const AnalisisPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -99,6 +107,8 @@ const AnalisisPage: React.FC = () => {
   const segundoPealSeleccionado = useAppSelector(
     (state) => state.analisis.segundoPealSelected,
   );
+  const modalActive = useAppSelector((state) => state.analisis.modalActive);
+  const [hoverButton, setHoverButton] = useState(false);
 
   // Radar Grafico
   const radarData = useAppSelector((state) => state.analisis.radarData);
@@ -749,80 +759,52 @@ const AnalisisPage: React.FC = () => {
           </PageLink>
         </HeaderCard>
         <SubHeaderCard>
-          {linkSeleccionado == "TRABAJADOR" && (
-            <SearchBar
-              options={colaboradores ? colaboradores : []}
-              getOptionLabel={(option: any) =>
-                `${option.nombre} ${option.apellido}`
-              }
-              defaultValue={trabajadorSeleccionado}
-              renderInput={(params) => (
-                <SearchBarTextField
-                  {...params}
-                  label={
-                    trabajadorSeleccionado
-                      ? `${trabajadorSeleccionado?.nombre} ${trabajadorSeleccionado?.apellido}`
-                      : BUSCAR_TRABAJADOR
-                  }
-                  variant="outlined"
-                  margin="normal"
-                />
-              )}
-              renderOption={(props, option, state) => (
-                <div
-                  {...props}
-                  style={{ width: "100%" }}
-                  onClick={() => {
-                    dispatch(setTrabajadorSelected(option as ColaboradorProps));
-                  }}
-                >
-                  {`${(option as ColaboradorProps).nombre} ${(option as ColaboradorProps).apellido}`}
-                </div>
-              )}
-            />
-          )}
-          {linkSeleccionado == "PROYECTO" && (
-            <SearchBar
-              options={peales ? peales : []}
-              getOptionLabel={(option: any) => `${option.nombre}`}
-              defaultValue={proyectoPealSeleccionado}
-              renderInput={(params) => (
-                <SearchBarTextField
-                  {...params}
-                  label={
-                    proyectoPealSeleccionado
-                      ? proyectoPealSeleccionado?.nombre
-                      : BUSCAR_PEAL
-                  }
-                  variant="outlined"
-                  margin="normal"
-                />
-              )}
-              renderOption={(props, option, state) => (
-                <div
-                  {...props}
-                  style={{ width: "100%" }}
-                  onClick={() => {
-                    dispatch(setProyectoPealSelected(option as PealProps));
-                  }}
-                >
-                  {(option as PealProps).nombre}
-                </div>
-              )}
-            />
-          )}
-          {linkSeleccionado == "COMPARACION" && (
-            <>
+          <AutocompleteContainer>
+            {linkSeleccionado == "TRABAJADOR" && (
               <SearchBar
-                options={peales ? peales : []}
-                getOptionLabel={(option: any) => `${option.nombre}`}
-                defaultValue={primerPealSeleccionado}
+                options={colaboradores ? colaboradores : []}
+                getOptionLabel={(option: any) =>
+                  `${option.nombre} ${option.apellido}`
+                }
+                defaultValue={trabajadorSeleccionado}
                 renderInput={(params) => (
                   <SearchBarTextField
                     {...params}
                     label={
-                      primerPealSeleccionado
-                        ? primerPealSeleccionado?.nombre
+                      trabajadorSeleccionado
+                        ? `${trabajadorSeleccionado?.nombre} ${trabajadorSeleccionado?.apellido}`
+                        : BUSCAR_TRABAJADOR
+                    }
+                    variant="outlined"
+                    margin="normal"
+                  />
+                )}
+                renderOption={(props, option, state) => (
+                  <div
+                    {...props}
+                    style={{ width: "100%" }}
+                    onClick={() => {
+                      dispatch(
+                        setTrabajadorSelected(option as ColaboradorProps),
+                      );
+                    }}
+                  >
+                    {`${(option as ColaboradorProps).nombre} ${(option as ColaboradorProps).apellido}`}
+                  </div>
+                )}
+              />
+            )}
+            {linkSeleccionado == "PROYECTO" && (
+              <SearchBar
+                options={peales ? peales : []}
+                getOptionLabel={(option: any) => `${option.nombre}`}
+                defaultValue={proyectoPealSeleccionado}
+                renderInput={(params) => (
+                  <SearchBarTextField
+                    {...params}
+                    label={
+                      proyectoPealSeleccionado
+                        ? proyectoPealSeleccionado?.nombre
                         : BUSCAR_PEAL
                     }
                     variant="outlined"
@@ -834,44 +816,89 @@ const AnalisisPage: React.FC = () => {
                     {...props}
                     style={{ width: "100%" }}
                     onClick={() => {
-                      dispatch(setPrimerPealSelected(option as PealProps));
+                      dispatch(setProyectoPealSelected(option as PealProps));
                     }}
                   >
                     {(option as PealProps).nombre}
                   </div>
                 )}
               />
-              <Separator>/</Separator>
-              <SearchBar
-                options={peales ? peales : []}
-                getOptionLabel={(option: any) => `${option.nombre}`}
-                defaultValue={segundoPealSeleccionado}
-                renderInput={(params) => (
-                  <SearchBarTextField
-                    {...params}
-                    label={
-                      segundoPealSeleccionado
-                        ? segundoPealSeleccionado?.nombre
-                        : BUSCAR_PEAL
-                    }
-                    variant="outlined"
-                    margin="normal"
-                  />
-                )}
-                renderOption={(props, option, state) => (
-                  <div
-                    {...props}
-                    style={{ width: "100%" }}
-                    onClick={() => {
-                      dispatch(setSegundoPealSelected(option as PealProps));
-                    }}
-                  >
-                    {(option as PealProps).nombre}
-                  </div>
-                )}
-              />
-            </>
-          )}
+            )}
+            {linkSeleccionado == "COMPARACION" && (
+              <>
+                <SearchBar
+                  options={peales ? peales : []}
+                  getOptionLabel={(option: any) => `${option.nombre}`}
+                  defaultValue={primerPealSeleccionado}
+                  renderInput={(params) => (
+                    <SearchBarTextField
+                      {...params}
+                      label={
+                        primerPealSeleccionado
+                          ? primerPealSeleccionado?.nombre
+                          : BUSCAR_PEAL
+                      }
+                      variant="outlined"
+                      margin="normal"
+                    />
+                  )}
+                  renderOption={(props, option, state) => (
+                    <div
+                      {...props}
+                      style={{ width: "100%" }}
+                      onClick={() => {
+                        dispatch(setPrimerPealSelected(option as PealProps));
+                      }}
+                    >
+                      {(option as PealProps).nombre}
+                    </div>
+                  )}
+                />
+                <Separator>/</Separator>
+                <SearchBar
+                  options={peales ? peales : []}
+                  getOptionLabel={(option: any) => `${option.nombre}`}
+                  defaultValue={segundoPealSeleccionado}
+                  renderInput={(params) => (
+                    <SearchBarTextField
+                      {...params}
+                      label={
+                        segundoPealSeleccionado
+                          ? segundoPealSeleccionado?.nombre
+                          : BUSCAR_PEAL
+                      }
+                      variant="outlined"
+                      margin="normal"
+                    />
+                  )}
+                  renderOption={(props, option, state) => (
+                    <div
+                      {...props}
+                      style={{ width: "100%" }}
+                      onClick={() => {
+                        dispatch(setSegundoPealSelected(option as PealProps));
+                      }}
+                    >
+                      {(option as PealProps).nombre}
+                    </div>
+                  )}
+                />
+              </>
+            )}
+          </AutocompleteContainer>
+          <ColaboradoresAddButton
+            onMouseEnter={() => setHoverButton(true)}
+            onMouseLeave={() => setHoverButton(false)}
+            onClick={() => dispatch(setModalActive(true))}
+          >
+            <Image
+              src={hoverButton ? AddButtonSelectedPNG : AddButtonPNG}
+              height={14}
+              width={14}
+              alt=""
+            />
+            <ButtonText hover={hoverButton}>{NUEVO_REPORTE}</ButtonText>
+          </ColaboradoresAddButton>
         </SubHeaderCard>
         <GraphsContainer>
           <LeftGraphContainer>
@@ -1193,6 +1220,7 @@ const AnalisisPage: React.FC = () => {
           </div>
         </GraphsContainer>
       </MainCardContainer>
+      {!modalActive || <ModalPDF type={linkSeleccionado} />}
     </AnalisisContainer>
   );
 };

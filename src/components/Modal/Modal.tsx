@@ -3,13 +3,14 @@ import Image from "next/image";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
+
 import {
   Button,
   ButtonBox,
   ButtonText,
   CloseModalContainer,
   DateSelect,
+  FilterEgresos,
   FilterPlaceholder,
   Header,
   InputBox,
@@ -29,8 +30,8 @@ import {
   TitleBox,
 } from "./styles";
 import {
+  ACTIVO,
   BUSCAR,
-  COLABORADOR,
   COLABORADORES_MODAL,
   COLABORADORES_MODAL_EGRESOS,
   COLABORADORES_MODAL_NIVEL_EDUCATIVO,
@@ -50,11 +51,13 @@ import {
   setApellido,
   setBarrio,
   setComienzo,
+  setComienzoColaborador,
   setComienzoEvaluacion,
   setComunicacion,
   setEdad,
   setEgresos,
   setFin,
+  setFinalizacionColaborador,
   setHabilidadesRelacionales,
   setHijos,
   setLiderazgo,
@@ -79,6 +82,7 @@ import { PuntajePOST } from "src/services/api/puntajesPOST";
 import { PuntajePUT } from "src/services/api/puntajesPUT";
 import { SelectChangeEvent } from "@mui/material/Select";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import {
   setColaboradores,
   setEvaluaciones,
@@ -102,6 +106,8 @@ import { setEditColaborador } from "@redux/slices/colaboradoresSlice";
 import { CloseModalPNG } from "src/assests";
 import { Avatar } from "@mui/material";
 import NumberInputBasic from "../InputNumber/InputNumber";
+
+dayjs.extend(utc);
 
 interface modalProps {
   type: "COLABORADOR" | "PROYECTO" | "EVALUACION" | "PARTICIPANTESEVALUACION";
@@ -128,6 +134,12 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
   const nivelEducativo = useAppSelector((state) => state.modal.nivel_educativo);
   const egresos = useAppSelector((state) => state.modal.egresos);
   const pealId = useAppSelector((state) => state.modal.peal_id);
+  const comienzoColaborador = useAppSelector(
+    (state) => state.modal.comienzoColaborador,
+  );
+  const finalizacionColaborador = useAppSelector(
+    (state) => state.modal.finalizacionColaborador,
+  );
 
   const [isFocused1, setIsFocused1] = useState(false);
   const [isFocused2, setIsFocused2] = useState(false);
@@ -231,15 +243,25 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
       dispatch(setNivelEducativo(colaboradorSeleccionado.nivel_educativo));
       dispatch(setEgresos(colaboradorSeleccionado.egresos));
       dispatch(setPealId(colaboradorSeleccionado.peal_id));
+      dispatch(
+        setComienzoColaborador(dayjs.utc(colaboradorSeleccionado.comienzo)),
+      );
+      dispatch(
+        setFinalizacionColaborador(
+          dayjs.utc(colaboradorSeleccionado.finalizacion),
+        ),
+      );
     }
     if (edit && pealSeleccionado) {
       dispatch(setNombrePeal(pealSeleccionado.nombre));
-      dispatch(setComienzo(dayjs(pealSeleccionado.comienzo)));
-      dispatch(setFin(dayjs(pealSeleccionado.fin)));
+      dispatch(setComienzo(dayjs.utc(pealSeleccionado.comienzo)));
+      dispatch(setFin(dayjs.utc(pealSeleccionado.fin)));
     }
     if (edit && evaluacionSeleccionado) {
       dispatch(setNombreEvaluacion(evaluacionSeleccionado.nombre));
-      dispatch(setComienzoEvaluacion(dayjs(evaluacionSeleccionado.comienzo)));
+      dispatch(
+        setComienzoEvaluacion(dayjs.utc(evaluacionSeleccionado.comienzo)),
+      );
     }
     dispatch(setAdaptacionCambio(puntaje?.adaptacion_al_cambio));
     dispatch(setHabilidadesRelacionales(puntaje?.habilidades_relacionales));
@@ -254,20 +276,84 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
     dispatch(setRendimientoLaboral(puntaje?.rendimiento_laboral));
   }, []);
 
+  const isAvailable = () => {
+    if (
+      type === "COLABORADOR" &&
+      nombreColaborador !== undefined &&
+      apellidoColaborador !== undefined &&
+      edad !== undefined &&
+      hijos !== undefined &&
+      barrio !== undefined &&
+      telefono !== undefined &&
+      nivelEducativo !== undefined &&
+      comienzoColaborador?.isValid() &&
+      pealId !== undefined
+    ) {
+      if (edit) {
+        if (
+          egresos !== "Activo" &&
+          (finalizacionColaborador ? finalizacionColaborador.isValid() : true)
+        ) {
+          return true;
+        }
+        if (egresos == "Activo") {
+          return true;
+        }
+        return false;
+      }
+      return true;
+    }
+    if (
+      type == "PROYECTO" &&
+      nombreProyecto !== undefined &&
+      comienzo?.isValid() &&
+      fin?.isValid()
+    ) {
+      return true;
+    }
+    if (
+      type == "EVALUACION" &&
+      nombreEvaluacion !== undefined &&
+      comienzoEvaluacion?.isValid() &&
+      peal_id
+    ) {
+      return true;
+    }
+    if (
+      type == "PARTICIPANTESEVALUACION" &&
+      colaboradorPuntuar !== undefined &&
+      evaluacionPuntuar !== undefined &&
+      (adaptacionCambio !== undefined ||
+        habilidadesRelacionales !== undefined ||
+        comunicacion !== undefined ||
+        liderazgo !== undefined ||
+        proactividad !== undefined ||
+        presencia !== undefined ||
+        puntualidad !== undefined ||
+        porcentajeAsistencia !== undefined ||
+        trabajoEquipo !== undefined ||
+        responsabilidad !== undefined ||
+        rendimientoLaboral !== undefined)
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   const handleOnClick = () => {
     if (
       type == "COLABORADOR" &&
-      nombreColaborador &&
-      apellidoColaborador &&
-      edad &&
-      hijos &&
-      barrio &&
-      telefono &&
-      nivelEducativo &&
-      egresos &&
-      pealId
+      nombreColaborador !== undefined &&
+      apellidoColaborador !== undefined &&
+      edad !== undefined &&
+      hijos !== undefined &&
+      barrio !== undefined &&
+      telefono !== undefined &&
+      nivelEducativo !== undefined &&
+      comienzoColaborador?.isValid() &&
+      pealId !== undefined
     ) {
-      if (edit && colaboradorSeleccionado) {
+      if (edit && colaboradorSeleccionado && egresos !== undefined) {
         const OkColaboradores = ColaboradorPUT(
           colaboradorSeleccionado.id,
           nombreColaborador,
@@ -279,6 +365,16 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
           nivelEducativo,
           egresos,
           pealId,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          comienzoColaborador,
+          finalizacionColaborador?.isValid() && egresos !== "Activo"
+            ? finalizacionColaborador
+            : null,
         );
         if (OkColaboradores) {
           OkColaboradores.then((data) => {
@@ -303,8 +399,10 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
           barrio,
           telefono,
           nivelEducativo,
-          egresos,
+          "Activo",
           pealId,
+          comienzoColaborador,
+          null,
         );
         if (OkColaboradores) {
           const newArray = colaboradores;
@@ -315,7 +413,12 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
       }
       dispatch(setEditColaborador(true));
     }
-    if (type == "PROYECTO" && nombreProyecto && comienzo && fin) {
+    if (
+      type == "PROYECTO" &&
+      nombreProyecto !== undefined &&
+      comienzo?.isValid() &&
+      fin?.isValid()
+    ) {
       if (edit && pealSeleccionado) {
         const OkPeal = PealPUT(
           pealSeleccionado.id,
@@ -346,8 +449,8 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
     }
     if (
       type == "EVALUACION" &&
-      nombreEvaluacion &&
-      comienzoEvaluacion &&
+      nombreEvaluacion !== undefined &&
+      comienzoEvaluacion?.isValid() &&
       peal_id
     ) {
       if (edit && evaluacionSeleccionado) {
@@ -389,19 +492,19 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
     }
     if (
       type == "PARTICIPANTESEVALUACION" &&
-      colaboradorPuntuar &&
-      evaluacionPuntuar &&
-      (adaptacionCambio ||
-        habilidadesRelacionales ||
-        comunicacion ||
-        liderazgo ||
-        proactividad ||
-        presencia ||
-        puntualidad ||
-        porcentajeAsistencia ||
-        trabajoEquipo ||
-        responsabilidad ||
-        rendimientoLaboral)
+      colaboradorPuntuar !== undefined &&
+      evaluacionPuntuar !== undefined &&
+      (adaptacionCambio !== undefined ||
+        habilidadesRelacionales !== undefined ||
+        comunicacion !== undefined ||
+        liderazgo !== undefined ||
+        proactividad !== undefined ||
+        presencia !== undefined ||
+        puntualidad !== undefined ||
+        porcentajeAsistencia !== undefined ||
+        trabajoEquipo !== undefined ||
+        responsabilidad !== undefined ||
+        rendimientoLaboral !== undefined)
     ) {
       if (puntaje) {
         const OkPuntaje = PuntajePUT(
@@ -457,9 +560,33 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
           );
         }
       }
+      if (evaluacionSeleccionado) {
+        const OkEvaluacion = EvaluacionPUT(
+          evaluacionSeleccionado.id,
+          evaluacionSeleccionado.nombre,
+          dayjs.utc(evaluacionSeleccionado.comienzo),
+          dayjs(),
+          evaluacionSeleccionado.peal_id,
+        );
+        if (OkEvaluacion) {
+          OkEvaluacion.then((data) =>
+            dispatch(
+              setEvaluaciones(
+                evaluaciones?.map((evaluacion) =>
+                  (data as EvaluacionProps).id == evaluacion.id
+                    ? data
+                    : evaluacion,
+                ),
+              ),
+            ),
+          );
+        }
+      }
     }
-    dispatch(clearModal());
-    dispatch(setActive(false));
+    if (isAvailable()) {
+      dispatch(clearModal());
+      dispatch(setActive(false));
+    }
   };
 
   function getColorByTypeAndString(str: string) {
@@ -476,7 +603,7 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
     <ModalBackground>
       <ModalCard>
         <Header>
-          {edit ? (
+          {edit && type == "COLABORADOR" ? (
             <>
               <TextPhotoContianer>
                 {type == "COLABORADOR" ? (
@@ -669,6 +796,19 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
                     </SelectText>
                   </InputBox>
                 )}
+                {!(edit && egresos !== "Activo") || (
+                  <InputBox>
+                    <InputTitle>{COLABORADORES_MODAL[10]}</InputTitle>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DateSelect
+                        value={finalizacionColaborador}
+                        onChange={(newDate) =>
+                          dispatch(setFinalizacionColaborador(newDate))
+                        }
+                      />
+                    </LocalizationProvider>
+                  </InputBox>
+                )}
               </>
             ) : type == "PROYECTO" ? (
               <>
@@ -759,39 +899,54 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
                     }}
                   />
                 </InputBox>
-                <InputBox>
-                  <InputTitle>{COLABORADORES_MODAL[7]}</InputTitle>
-                  <SelectText
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    placeholder={!isFocused2 && !egresos}
-                    defaultValue={
-                      colaboradorSeleccionado && edit
-                        ? colaboradorSeleccionado.egresos
-                        : ""
-                    }
-                    onOpen={handleFocus2}
-                    onClose={handleBlur2}
-                    onChange={(event: SelectChangeEvent) => {
-                      dispatch(setEgresos(event.target.value as string));
-                    }}
-                    startAdornment={
-                      isFocused2 || egresos ? (
-                        <></>
-                      ) : (
-                        <>
-                          <FilterPlaceholder>{BUSCAR}</FilterPlaceholder>
-                        </>
-                      )
-                    }
-                  >
-                    {COLABORADORES_MODAL_EGRESOS?.map((name) => (
-                      <SelectOptions key={name} value={name}>
-                        {name}
-                      </SelectOptions>
-                    ))}
-                  </SelectText>
-                </InputBox>
+                {!edit || (
+                  <InputBox>
+                    <InputTitle>{COLABORADORES_MODAL[7]}</InputTitle>
+                    <SelectText
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
+                      placeholder={!isFocused2 && !egresos}
+                      defaultValue={
+                        colaboradorSeleccionado && edit
+                          ? colaboradorSeleccionado.egresos
+                          : ""
+                      }
+                      onOpen={handleFocus2}
+                      onClose={handleBlur2}
+                      onChange={(event: SelectChangeEvent) => {
+                        dispatch(setEgresos(event.target.value as string));
+                      }}
+                      startAdornment={
+                        egresos !== "Activo" ? (
+                          <></>
+                        ) : (
+                          <>
+                            <FilterEgresos>{ACTIVO}</FilterEgresos>
+                          </>
+                        )
+                      }
+                    >
+                      {COLABORADORES_MODAL_EGRESOS?.map((name) => (
+                        <SelectOptions key={name} value={name}>
+                          {name}
+                        </SelectOptions>
+                      ))}
+                    </SelectText>
+                  </InputBox>
+                )}
+                {edit || (
+                  <InputBox>
+                    <InputTitle>{COLABORADORES_MODAL[9]}</InputTitle>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DateSelect
+                        value={comienzoColaborador}
+                        onChange={(newDate) =>
+                          dispatch(setComienzoColaborador(newDate))
+                        }
+                      />
+                    </LocalizationProvider>
+                  </InputBox>
+                )}
               </>
             ) : type == "PROYECTO" ? (
               <>
@@ -815,6 +970,12 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
                       onChange={(newDate) =>
                         dispatch(setComienzoEvaluacion(newDate))
                       }
+                      minDate={dayjs.utc(
+                        peales?.find((peal) => peal.id == peal_id)?.comienzo,
+                      )}
+                      maxDate={dayjs.utc(
+                        peales?.find((peal) => peal.id == peal_id)?.fin,
+                      )}
                     />
                   </LocalizationProvider>
                 </InputBox>
@@ -850,8 +1011,9 @@ const Modal: React.FC<modalProps> = ({ type, edit, peal_id }) => {
                 onMouseEnter={() => setHoverButton(true)}
                 onMouseLeave={() => setHoverButton(false)}
                 onClick={() => handleOnClick()}
+                available={isAvailable()}
               >
-                <ButtonText hover={hoverButton}>
+                <ButtonText hover={hoverButton} available={isAvailable()}>
                   {type == "EVALUACION"
                     ? EVALUAR
                     : type == "PARTICIPANTESEVALUACION"

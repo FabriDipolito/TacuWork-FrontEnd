@@ -450,7 +450,7 @@ export const InfoEmergenciaContainer = styled("div")(() => {
     flexDirection: "row",
     justifyContent: "flex-end",
     width: "100%",
-    height: "fit-content",
+    height: "50px",
     padding: "0px 60px 12px 60px",
   };
 });

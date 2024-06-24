@@ -21,11 +21,14 @@ import {
   AnalisisIconInactivoPNG,
   LogOutPNG,
   LogOutHoverPNG,
+  EncuestaIconActivePNG,
+  EncuestaIconPNG,
 } from "../../assests";
 import {
   ANALISIS,
   CERRAR_SESSION,
   COLABORADORES,
+  ENCUESTAS,
   EVALUACIONES,
   PROYECTOS,
 } from "@constants";
@@ -155,6 +158,28 @@ const NavBar: React.FC = () => {
                 logout={false}
               >
                 {EVALUACIONES}
+              </LinkText>
+            </LinkContent>
+          </Link>
+          <Link href="/Encuestas" style={{ textDecoration: "none" }}>
+            <LinkContent>
+              <div style={{ height: "16px", width: "16px" }}>
+                {route.pathname == "/Encuestas" ? (
+                  <Image
+                    src={EncuestaIconActivePNG}
+                    height={16}
+                    width={18}
+                    alt=""
+                  />
+                ) : (
+                  <Image src={EncuestaIconPNG} height={16} width={18} alt="" />
+                )}
+              </div>
+              <LinkText
+                selected={route.pathname == "/Encuestas"}
+                logout={false}
+              >
+                {ENCUESTAS}
               </LinkText>
             </LinkContent>
           </Link>

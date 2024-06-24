@@ -21,6 +21,8 @@ export interface ColaboradorProps {
   numero_cuenta?: string;
   nombre_emergencia?: string;
   telefono_emergencia?: string;
+  comienzo?: string;
+  finalizacion?: string;
 }
 
 export interface PealProps {
@@ -55,6 +57,16 @@ export type PuntajeProps = {
   [key: string]: number | undefined,
 };
 
+export type EncuestaProps = {
+  id: number,
+  respuesta1: string | undefined,
+  respuesta2: string | undefined,
+  respuesta3: string | undefined,
+  comentario: string | undefined,
+  peal_id: number | undefined,
+  nombre: string | undefined,
+};
+
 // Props
 
 // Estados
@@ -64,6 +76,7 @@ export type generalState = {
   peales: Array<PealProps> | undefined,
   evaluaciones: Array<EvaluacionProps> | undefined,
   puntajes: Array<PuntajeProps> | undefined,
+  encuestas: Array<EncuestaProps> | undefined,
 };
 
 export type colaboradorState = {
@@ -81,6 +94,45 @@ export type evaluacionState = {
   pealSelected: PealProps | undefined,
   evaluacionesHechas: Array<EvaluacionProps>,
   edit: boolean;
+};
+
+export interface DataBarProps {
+  respuesta: string;
+  darkRed: number;
+  red: number;
+  lightRed: number;
+  orange: number;
+  lightOrange: number;
+  yellow: number;
+  lightLime: number;
+  lime: number;
+  lightGreen: number;
+  green: number;
+  darkGreen: number;
+}
+
+export interface DataPieProps {
+  id: string;
+  label: string;
+  value: number;
+}
+
+export type encuestasState = {
+  barData: Array<DataBarProps>;
+  pie1Data: Array<DataPieProps>;
+  pie2Data: Array<DataPieProps>;
+  pealSelected: PealProps | undefined,
+  active: boolean;
+};
+
+export type encuestasUsuariosState = {
+  id: number | undefined;
+  pealSelected: PealProps | undefined,
+  nombre: string | undefined,
+  respuesta1: "Excelente" | "Buena" | "Regular" | "Mala" | "Muy mala" | undefined;
+  respuesta2: "Siempre" | "La mayor parte del tiempo" | "A veces" | "Rara vez" | "Nunca" | undefined;
+  respuesta3: "Muy positivo" | "Positivo" | "Neutral" | "Negativo" | "Muy negativo" | undefined;
+  comentario: string | undefined;
 };
 
 export type participantesEvaluacionState = {
@@ -112,6 +164,8 @@ export type searchBoxState = {
   groupFilter: Array<string> | undefined,
   groupFilterSelected: string | undefined,
   searchFilterSelected: string | undefined,
+  comienzoFilter?: Dayjs | null,
+  finalizacionFilter?: Dayjs | null,
   filterArray: Array<ColaboradorProps> | Array<PealProps> | Array<EvaluacionProps> | undefined,
 };
 
@@ -127,6 +181,8 @@ export type modalState = {
   barrio: string | undefined,
   egresos: string | undefined,
   peal_id: number | undefined,
+  comienzoColaborador: Dayjs | null,
+  finalizacionColaborador: Dayjs | null,
   //COLABORADOR
   //PROYECTO
   nombre_peal: string | undefined,
@@ -184,6 +240,8 @@ export type analisisState = {
   proyectoPealSelected: PealProps | undefined;
   primerPealSelected: PealProps | undefined;
   segundoPealSelected: PealProps | undefined;
+  modalActive: boolean | undefined;
+  comentario: string | undefined;
 };
 
 export type dataColaboradorDelete = {

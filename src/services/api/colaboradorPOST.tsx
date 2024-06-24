@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 export const ColaboradorPOST = async (
   nombre: string,
   apellido: string,
@@ -8,6 +10,8 @@ export const ColaboradorPOST = async (
   nivel_educativo: string,
   egresos: string,
   peal_id: number,
+  comienzo?: Dayjs | null,
+  finalizacion?: Dayjs | null,
 ) => {
   const colaboradorData = {
     nombre: nombre,
@@ -19,6 +23,8 @@ export const ColaboradorPOST = async (
     nivel_educativo: nivel_educativo,
     egresos: egresos,
     peal_id: peal_id,
+    comienzo: comienzo ? comienzo : null,
+    finalizacion: finalizacion ? finalizacion : null,
   };
 
   try {

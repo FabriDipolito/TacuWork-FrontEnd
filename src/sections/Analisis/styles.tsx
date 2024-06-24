@@ -45,12 +45,24 @@ export const SubHeaderCard = styled("div")(({ theme }) => {
   return {
     display: "flex",
     flexDirection: "row",
+    justifyContent: "space-between",
     gap: "13px",
     width: "100%",
     backgroundColor: "transparent",
     height: "66px",
     borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
-    padding: "15px 25px",
+    padding: "15px 40px 15px 25px",
+  };
+});
+
+export const AutocompleteContainer = styled("div")(({ theme }) => {
+  return {
+    display: "flex",
+    flexDirection: "row",
+    gap: "13px",
+    width: "fit-content",
+    backgroundColor: "transparent",
+    height: "fit-content",
   };
 });
 
@@ -477,5 +489,44 @@ export const LabelPromedioText = styled(Typography)<PromedioTextProps>(({ theme,
     color: type == "NORMAL" ? "#1E1E31" : type == "MEJOR" ? "#90EE90" : "#FF7F7F",
     opacity: 0.7,
     textAlign: "center",
+  };
+});
+
+export const ColaboradoresAddButton = styled("div")(({ theme }) => {
+  return {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    width: "fit-content",
+    height: "32px",
+    borderRadius: "20px",
+    backgroundColor: "transparent",
+    padding: "6px 12px 8px 12px",
+    gap: "6px",
+    border: `2px solid ${theme.customPalette.primary}`,
+    cursor: "pointer",
+    ":hover": {
+      backgroundColor: theme.customPalette.primary,
+    }
+  };
+});
+
+interface ButtonTextProps {
+  hover: boolean;
+}
+
+export const ButtonText = styled(Typography)<ButtonTextProps>(({ theme, hover }) => {
+  const {
+    customPalette: {
+      primary,
+      white,
+    },
+  } = theme;
+
+  return {
+    fontSize: "13px",
+    fontWeight: 500,
+    marginBottom: "-2px",
+    color: hover ? white : primary,
   };
 });

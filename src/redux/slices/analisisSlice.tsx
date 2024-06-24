@@ -54,6 +54,8 @@ const initialState: analisisState = {
   proyectoPealSelected: undefined,
   primerPealSelected: undefined,
   segundoPealSelected: undefined,
+  modalActive: undefined,
+  comentario: undefined,
 };
 
 export const analisisSlice = createSlice({
@@ -117,6 +119,12 @@ export const analisisSlice = createSlice({
     ) => {
       state.segundoPealSelected = action.payload;
     },
+    setModalActive: (state, action: PayloadAction<boolean | undefined>) => {
+      state.modalActive = action.payload;
+    },
+    setComentario: (state, action: PayloadAction<string | undefined>) => {
+      state.comentario = action.payload;
+    },
   },
 });
 
@@ -133,6 +141,8 @@ export const {
   setProyectoPealSelected,
   setPrimerPealSelected,
   setSegundoPealSelected,
+  setModalActive,
+  setComentario,
 } = analisisSlice.actions;
 
 export default analisisSlice.reducer;
