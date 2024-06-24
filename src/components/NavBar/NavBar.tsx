@@ -23,6 +23,8 @@ import {
   LogOutHoverPNG,
   EncuestaIconActivePNG,
   EncuestaIconPNG,
+  RankingIconInactivePNG,
+  RankingIconActivePNG,
 } from "../../assests";
 import {
   ANALISIS,
@@ -31,6 +33,7 @@ import {
   ENCUESTAS,
   EVALUACIONES,
   PROYECTOS,
+  RANKING,
 } from "@constants";
 import Link from "next/link";
 import router, { useRouter } from "next/router";
@@ -56,6 +59,30 @@ const NavBar: React.FC = () => {
           <Image src={TacuWorkLogoPNG} height={50} width={90} alt="" />
         </LogoContainer>
         <LinksContainer>
+          <Link href="/Ranking" style={{ textDecoration: "none" }}>
+            <LinkContent>
+              <div style={{ height: "18px", width: "18px" }}>
+                {route.pathname == "/Ranking" ? (
+                  <Image
+                    src={RankingIconActivePNG}
+                    height={20}
+                    width={20}
+                    alt=""
+                  />
+                ) : (
+                  <Image
+                    src={RankingIconInactivePNG}
+                    height={20}
+                    width={20}
+                    alt=""
+                  />
+                )}
+              </div>
+              <LinkText selected={route.pathname == "/Ranking"} logout={false}>
+                {RANKING}
+              </LinkText>
+            </LinkContent>
+          </Link>
           <Link href="/Analisis" style={{ textDecoration: "none" }}>
             <LinkContent>
               <div style={{ height: "14px", width: "18px" }}>

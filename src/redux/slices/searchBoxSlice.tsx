@@ -16,6 +16,7 @@ const initialState: searchBoxState = {
   comienzoFilter: undefined,
   finalizacionFilter: undefined,
   filterArray: undefined,
+  arrayRanking: undefined,
 };
 
 export const searchBoxSlice = createSlice({
@@ -69,6 +70,12 @@ export const searchBoxSlice = createSlice({
     ) => {
       state.filterArray = action.payload;
     },
+    setRankingArray: (
+      state,
+      action: PayloadAction<Array<ColaboradorProps> | undefined>,
+    ) => {
+      state.arrayRanking = action.payload;
+    },
   },
 });
 
@@ -81,6 +88,7 @@ export const {
   setComienzoFilterSelected,
   setFinalizacionFilterSelected,
   setFilterArray,
+  setRankingArray,
 } = searchBoxSlice.actions;
 
 export default searchBoxSlice.reducer;

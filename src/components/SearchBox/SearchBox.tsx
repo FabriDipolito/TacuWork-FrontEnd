@@ -12,6 +12,7 @@ import {
   Header,
   InputBox,
   InputTitle,
+  RankingNumeral,
   SearchBar,
   SearchText,
   SelectOptions,
@@ -56,6 +57,7 @@ import {
   PROYECTO_FILTER,
   PROYECTO_PARTICIPANTES_TAGS,
   PROYECTO_TAGS,
+  RANKING_TAGS,
   ROMAN_ICONS,
 } from "@constants";
 import { ColaboradorProps, EvaluacionProps, PealProps } from "@types";
@@ -68,6 +70,7 @@ import {
   setFinalizacionFilterSelected,
   setGroupFilter,
   setGroupFilterSelected,
+  setRankingArray,
   setSearchFilterSelected,
 } from "@redux/slices/searchBoxSlice";
 import { clearModal, setActive } from "@redux/slices/modalSlice";
@@ -110,7 +113,12 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 dayjs.extend(utc);
 
 interface SearchBoxProps {
-  type?: "COLABORADOR" | "PROYECTO" | "EVALUACION" | "PARTICIPANTESEVALUACION";
+  type?:
+    | "COLABORADOR"
+    | "PROYECTO"
+    | "EVALUACION"
+    | "PARTICIPANTESEVALUACION"
+    | "RANKING";
   array?: Array<ColaboradorProps> | Array<PealProps> | Array<EvaluacionProps>;
   participantesProyecto?: boolean;
 }
@@ -139,6 +147,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     (state) => state.searchBox.finalizacionFilter,
   );
   const filterArray = useAppSelector((state) => state.searchBox.filterArray);
+  const rankingArray = useAppSelector((state) => state.searchBox.arrayRanking);
   const pealParticipantes = useAppSelector(
     (state) => state.participantesEvaluacion.pealSelected,
   );
@@ -189,6 +198,9 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     }
     if (type == "PARTICIPANTESEVALUACION")
       dispatch(setFilter(PARTICIPANTES_EVALUACION_FILTER));
+    if (type == "RANKING") {
+      dispatch(setGroupFilter(peales?.map((peal) => peal.nombre)));
+    }
   }, []);
 
   useEffect(() => {
@@ -632,6 +644,51 @@ const SearchBox: React.FC<SearchBoxProps> = ({
         );
       }
     }
+    if (type == "RANKING") {
+      (newArray as Array<ColaboradorProps>)?.sort((a, b) => {
+        const promedioA = calcularPromedioRanking(a);
+        const promedioB = calcularPromedioRanking(b);
+
+        if (promedioA === "-" && promedioB === "-") return 0;
+        if (promedioA === "-") return 1;
+        if (promedioB === "-") return -1;
+        return (
+          (promedioB as unknown as number) - (promedioA as unknown as number)
+        );
+      });
+      dispatch(setRankingArray(newArray as Array<ColaboradorProps>));
+      if (
+        groupFilterSelected !== undefined ||
+        searchFilterSelected !== undefined
+      ) {
+        dispatch(
+          setFilterArray(
+            (newArray as Array<ColaboradorProps>)
+              ?.filter((object) =>
+                groupFilterSelected
+                  ? peales?.find((peal) => peal.nombre == groupFilterSelected)
+                      ?.id == object.peal_id
+                  : true,
+              )
+              ?.filter((object) =>
+                searchFilterSelected
+                  ? object.nombre
+                      .toLowerCase()
+                      .includes(searchFilterSelected.toLowerCase()) ||
+                    object.apellido
+                      .toLowerCase()
+                      .includes(searchFilterSelected.toLowerCase()) ||
+                    `${object.nombre.toLowerCase()} ${object.apellido.toLowerCase()}`.includes(
+                      searchFilterSelected.toLowerCase(),
+                    )
+                  : true,
+              ),
+          ),
+        );
+      } else {
+        dispatch(setFilterArray(newArray as Array<ColaboradorProps>));
+      }
+    }
   }, [
     filterSelected,
     groupFilterSelected,
@@ -642,6 +699,25 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     array,
     puntajes,
   ]);
+
+  const handleObtenerRangoDelRanking = (
+    colaboradorElejido: ColaboradorProps,
+  ) => {
+    if (groupFilterSelected) {
+      const rank1 = rankingArray
+        ?.filter(
+          (colaborador) =>
+            peales?.find((peal) => peal.nombre == groupFilterSelected)?.id ==
+            colaborador.peal_id,
+        )
+        ?.findIndex((colaborador) => colaborador.id == colaboradorElejido.id);
+      return rank1 == undefined || rank1 + 1;
+    }
+    const rank2 = rankingArray?.findIndex(
+      (colaborador) => colaborador.id == colaboradorElejido.id,
+    );
+    return rank2 == undefined || rank2 + 1;
+  };
 
   const handleChangeFilter = (
     event: SelectChangeEvent<unknown>,
@@ -737,6 +813,77 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     return "SIN EVALUAR";
   };
 
+  const calcularPromedioRanking = (colaborador: ColaboradorProps) => {
+    const puntajes = allPuntajes?.filter(
+      (puntaje) => puntaje.colaborador_id == colaborador.id,
+    );
+
+    const promedios = puntajes
+      ?.filter((puntaje) => {
+        if (puntaje) {
+          if (
+            puntaje.adaptacion_al_cambio &&
+            puntaje.comunicacion &&
+            puntaje.habilidades_relacionales &&
+            puntaje.liderazgo &&
+            puntaje.porcentaje_asistencia &&
+            puntaje.presencia &&
+            puntaje.proactividad &&
+            puntaje.puntualidad &&
+            puntaje.rendimiento_laboral &&
+            puntaje.responsabilidades &&
+            puntaje.trabajo_en_equipo
+          ) {
+            return true;
+          }
+          return false;
+        }
+        return false;
+      })
+      .map((puntaje) => {
+        if (
+          puntaje.adaptacion_al_cambio &&
+          puntaje.comunicacion &&
+          puntaje.habilidades_relacionales &&
+          puntaje.liderazgo &&
+          puntaje.porcentaje_asistencia &&
+          puntaje.presencia &&
+          puntaje.proactividad &&
+          puntaje.puntualidad &&
+          puntaje.rendimiento_laboral &&
+          puntaje.responsabilidades &&
+          puntaje.trabajo_en_equipo
+        ) {
+          return Number(
+            (
+              (puntaje.adaptacion_al_cambio +
+                puntaje.comunicacion +
+                puntaje.habilidades_relacionales +
+                puntaje.liderazgo +
+                puntaje.porcentaje_asistencia / 10 +
+                puntaje.presencia +
+                puntaje.proactividad +
+                puntaje.puntualidad +
+                puntaje.rendimiento_laboral +
+                puntaje.responsabilidades +
+                puntaje.trabajo_en_equipo) /
+              11
+            ).toFixed(2),
+          );
+        }
+      });
+    if (promedios && promedios?.length !== 0) {
+      console.log(promedios);
+      return (
+        (promedios as unknown as number[]).reduce(
+          (acumulador, valorActual) => acumulador + valorActual,
+          0,
+        ) / promedios?.length
+      ).toFixed(2);
+    }
+    return "-";
+  };
+
   function calcularDiferenciaFechas(fechaString: string) {
     const fechaIngresada = new Date(fechaString);
     const fechaActual = new Date();
@@ -795,36 +942,39 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     <ColumnContainer>
       <SeparatorContainer>
         <Header>
-          <StyledSelect
-            startAdornment={
-              filterSelected ? (
-                <></>
-              ) : (
-                <>
-                  <InputAdornment position="start">
-                    <Image
-                      src={FilterSelectIconPNG}
-                      alt=""
-                      width={11}
-                      height={12}
-                    />
-                  </InputAdornment>
-                  <FilterText>{FILTRO}</FilterText>
-                </>
-              )
-            }
-            value={filterSelected}
-            onChange={handleChangeFilter}
-          >
-            {filter?.map((string: string) => (
-              <SelectOptions key={string} value={string}>
-                <FilterText option selected={filterSelected ? true : false}>
-                  {string}
-                </FilterText>
-              </SelectOptions>
-            ))}
-          </StyledSelect>
-          {type == "COLABORADOR" && !participantesProyecto ? (
+          {type == "RANKING" || (
+            <StyledSelect
+              startAdornment={
+                filterSelected ? (
+                  <></>
+                ) : (
+                  <>
+                    <InputAdornment position="start">
+                      <Image
+                        src={FilterSelectIconPNG}
+                        alt=""
+                        width={11}
+                        height={12}
+                      />
+                    </InputAdornment>
+                    <FilterText>{FILTRO}</FilterText>
+                  </>
+                )
+              }
+              value={filterSelected}
+              onChange={handleChangeFilter}
+            >
+              {filter?.map((string: string) => (
+                <SelectOptions key={string} value={string}>
+                  <FilterText option selected={filterSelected ? true : false}>
+                    {string}
+                  </FilterText>
+                </SelectOptions>
+              ))}
+            </StyledSelect>
+          )}
+          {(type == "COLABORADOR" && !participantesProyecto) ||
+          type == "RANKING" ? (
             <StyledSelect
               startAdornment={
                 groupFilterSelected ? (
@@ -934,9 +1084,11 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                     ? PROYECTO_TAGS.map((tag) => <TH key={tag}>{tag}</TH>)
                     : type == "EVALUACION"
                       ? EVALUACION_TAGS.map((tag) => <TH key={tag}>{tag}</TH>)
-                      : PARTICIPANTES_EVALUACION_TAGS.map((tag) => (
-                          <TH key={tag}>{tag}</TH>
-                        ))}
+                      : type == "RANKING"
+                        ? RANKING_TAGS.map((tag) => <TH key={tag}>{tag}</TH>)
+                        : PARTICIPANTES_EVALUACION_TAGS.map((tag) => (
+                            <TH key={tag}>{tag}</TH>
+                          ))}
               </TRow>
             </THead>
             <TBody>
@@ -1271,128 +1423,215 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                           </TD>
                         </TRow>
                       ))
-                    : (filterArray as Array<ColaboradorProps>)?.map(
-                        (object) => (
-                          <TRow key={object.id}>
-                            <TD firstColumn>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "row",
-                                  alignItems: "center",
-                                  gap: "5px",
-                                  width: "fit-content",
-                                  height: "100%",
-                                }}
-                              >
-                                <DeleteTrashContainer
-                                  onClick={() => {
-                                    dispatch(
-                                      setPuntaje(
-                                        puntajes?.find(
-                                          (puntaje) =>
-                                            puntaje.colaborador_id ==
-                                              object.id &&
-                                            puntaje.evaluacion_id ==
-                                              evaluacionSelected?.id,
-                                        ),
-                                      ),
-                                    );
-                                    dispatch(setActiveDelete(true));
+                    : type == "RANKING"
+                      ? (filterArray as Array<ColaboradorProps>)?.map(
+                          (object) => (
+                            <TRow key={object.id}>
+                              <TD firstColumn>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    gap: "5px",
+                                    width: "fit-content",
+                                    height: "100%",
                                   }}
                                 >
-                                  <Image
-                                    src={TrashDeleteButtonPNG}
-                                    alt=""
-                                    width={13}
-                                    height={13}
-                                  />
-                                </DeleteTrashContainer>
-                                {object.imagen ? (
-                                  <Image
-                                    src={`data:image/jpeg;base64,${object.imagen}`}
-                                    alt={object?.nombre || "Imagen"}
-                                    width={33}
-                                    height={33}
-                                    style={{
-                                      borderRadius: "11px",
-                                    }}
-                                  />
-                                ) : (
-                                  <Avatar
-                                    sx={{
-                                      bgcolor: getColorByTypeAndString(
-                                        object &&
-                                          object?.nombre &&
-                                          object?.apellido
-                                          ? `${object?.nombre[0]} ${object?.apellido[0]}`
-                                          : "black",
-                                      ),
-                                      width: 33,
-                                      height: 33,
-                                      borderRadius: "11px",
-                                    }}
-                                    variant="rounded"
-                                  >
-                                    {object &&
-                                    object?.nombre &&
-                                    object?.apellido
-                                      ? object?.nombre[0]
-                                      : ""}
-                                    {object &&
-                                    object?.nombre &&
-                                    object?.apellido
-                                      ? object?.apellido[0]
-                                      : ""}
-                                  </Avatar>
-                                )}
-                              </div>
-                            </TD>
-                            <TD
-                              onClick={() =>
-                                handleParticipantesEvaluacionClick(object)
-                              }
-                            >
-                              {object.nombre}
-                            </TD>
-                            <TD
-                              onClick={() =>
-                                handleParticipantesEvaluacionClick(object)
-                              }
-                            >
-                              {object.apellido}
-                            </TD>
-                            <TD
-                              onClick={() =>
-                                handleParticipantesEvaluacionClick(object)
-                              }
-                            >
-                              {calcularPromedioYEstado("PROMEDIO", object)}
-                            </TD>
-                            <TD
-                              onClick={() =>
-                                handleParticipantesEvaluacionClick(object)
-                              }
-                            >
-                              <div
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  display: "flex",
-                                  justifyContent: "center",
-                                }}
-                              >
-                                <StateTag
-                                  state={calcularPromedioYEstado(
-                                    "ESTADO",
-                                    object,
+                                  <RankingNumeral>
+                                    # {handleObtenerRangoDelRanking(object)}
+                                  </RankingNumeral>
+                                  {object.imagen ? (
+                                    <Image
+                                      src={`data:image/jpeg;base64,${object.imagen}`}
+                                      alt={object?.nombre || "Imagen"}
+                                      width={33}
+                                      height={33}
+                                      style={{
+                                        borderRadius: "11px",
+                                      }}
+                                    />
+                                  ) : (
+                                    <Avatar
+                                      sx={{
+                                        bgcolor: getColorByTypeAndString(
+                                          object &&
+                                            object?.nombre &&
+                                            object?.apellido
+                                            ? `${object?.nombre[0]} ${object?.apellido[0]}`
+                                            : "black",
+                                        ),
+                                        width: 33,
+                                        height: 33,
+                                        borderRadius: "11px",
+                                      }}
+                                      variant="rounded"
+                                    >
+                                      {object &&
+                                      object?.nombre &&
+                                      object?.apellido
+                                        ? object?.nombre[0]
+                                        : ""}
+                                      {object &&
+                                      object?.nombre &&
+                                      object?.apellido
+                                        ? object?.apellido[0]
+                                        : ""}
+                                    </Avatar>
                                   )}
-                                />
-                              </div>
-                            </TD>
-                          </TRow>
-                        ),
-                      )}
+                                </div>
+                              </TD>
+                              <TD>
+                                {object.nombre} {object.apellido}
+                              </TD>
+                              <TD>
+                                {
+                                  peales?.find(
+                                    (peal) => peal.id == object.peal_id,
+                                  )?.nombre
+                                }
+                              </TD>
+                              <TD>{calcularPromedioRanking(object)}</TD>
+                              <TD>
+                                {`${object.comienzo?.substring(5, 16)} / ${object.finalizacion?.substring(5, 16) || "Actualidad"}`}
+                              </TD>
+                              <TD>
+                                <div
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <StateTag state={object.egresos} />
+                                </div>
+                              </TD>
+                            </TRow>
+                          ),
+                        )
+                      : (filterArray as Array<ColaboradorProps>)?.map(
+                          (object) => (
+                            <TRow key={object.id}>
+                              <TD firstColumn>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    gap: "5px",
+                                    width: "fit-content",
+                                    height: "100%",
+                                  }}
+                                >
+                                  <DeleteTrashContainer
+                                    onClick={() => {
+                                      dispatch(
+                                        setPuntaje(
+                                          puntajes?.find(
+                                            (puntaje) =>
+                                              puntaje.colaborador_id ==
+                                                object.id &&
+                                              puntaje.evaluacion_id ==
+                                                evaluacionSelected?.id,
+                                          ),
+                                        ),
+                                      );
+                                      dispatch(setActiveDelete(true));
+                                    }}
+                                  >
+                                    <Image
+                                      src={TrashDeleteButtonPNG}
+                                      alt=""
+                                      width={13}
+                                      height={13}
+                                    />
+                                  </DeleteTrashContainer>
+                                  {object.imagen ? (
+                                    <Image
+                                      src={`data:image/jpeg;base64,${object.imagen}`}
+                                      alt={object?.nombre || "Imagen"}
+                                      width={33}
+                                      height={33}
+                                      style={{
+                                        borderRadius: "11px",
+                                      }}
+                                    />
+                                  ) : (
+                                    <Avatar
+                                      sx={{
+                                        bgcolor: getColorByTypeAndString(
+                                          object &&
+                                            object?.nombre &&
+                                            object?.apellido
+                                            ? `${object?.nombre[0]} ${object?.apellido[0]}`
+                                            : "black",
+                                        ),
+                                        width: 33,
+                                        height: 33,
+                                        borderRadius: "11px",
+                                      }}
+                                      variant="rounded"
+                                    >
+                                      {object &&
+                                      object?.nombre &&
+                                      object?.apellido
+                                        ? object?.nombre[0]
+                                        : ""}
+                                      {object &&
+                                      object?.nombre &&
+                                      object?.apellido
+                                        ? object?.apellido[0]
+                                        : ""}
+                                    </Avatar>
+                                  )}
+                                </div>
+                              </TD>
+                              <TD
+                                onClick={() =>
+                                  handleParticipantesEvaluacionClick(object)
+                                }
+                              >
+                                {object.nombre}
+                              </TD>
+                              <TD
+                                onClick={() =>
+                                  handleParticipantesEvaluacionClick(object)
+                                }
+                              >
+                                {object.apellido}
+                              </TD>
+                              <TD
+                                onClick={() =>
+                                  handleParticipantesEvaluacionClick(object)
+                                }
+                              >
+                                {calcularPromedioYEstado("PROMEDIO", object)}
+                              </TD>
+                              <TD
+                                onClick={() =>
+                                  handleParticipantesEvaluacionClick(object)
+                                }
+                              >
+                                <div
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <StateTag
+                                    state={calcularPromedioYEstado(
+                                      "ESTADO",
+                                      object,
+                                    )}
+                                  />
+                                </div>
+                              </TD>
+                            </TRow>
+                          ),
+                        )}
             </TBody>
           </Table>
         </TableDiv>
@@ -1400,7 +1639,9 @@ const SearchBox: React.FC<SearchBoxProps> = ({
       <Footer>
         <FooterText>
           {A_MOSTRAR} {filterArray?.length}{" "}
-          {type == "COLABORADOR" || type == "PARTICIPANTESEVALUACION"
+          {type == "COLABORADOR" ||
+          type == "PARTICIPANTESEVALUACION" ||
+          type == "RANKING"
             ? COLABORADORES
             : type == "PROYECTO"
               ? PROYECTOS

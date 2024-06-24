@@ -10,6 +10,7 @@ export { default as ColaboradoresIconActivoPNG } from "./PNG/ColaboradoresIconAc
 export { default as ColaboradoresIconInactivoPNG } from "./PNG/ColaboradoresIconInactivo.png";
 export { default as ContactoEmergenciaIconPNG } from "./PNG/ContactoEmergenciaIcon.png";
 export { default as CopiarIconPNG } from "./PNG/CopiarIcon.png";
+export { default as CoronaIconPNG } from "./PNG/CoronaIcon.png";
 export { default as CursorIconActivePNG } from "./PNG/CursorIconActive.png";
 export { default as CursorIconInactivePNG } from "./PNG/CursorIconInactive.png";
 export { default as EditPencilPNG } from "./PNG/EditPencil.png";
@@ -34,6 +35,8 @@ export { default as ProyectosGroupIconPNG } from "./PNG/ProyectosGroupIcon.png";
 export { default as ProyectosIconPNG } from "./PNG/ProyectosIcon.png";
 export { default as ProyectosIconActivoPNG } from "./PNG/ProyectosIconActivo.png";
 export { default as ProyectosIconInactivoPNG } from "./PNG/ProyectosIconInactivo.png";
+export { default as RankingIconActivePNG } from "./PNG/RankingIconActive.png";
+export { default as RankingIconInactivePNG } from "./PNG/RankingIconInactive.png";
 export { default as SearchSelectIconPNG } from "./PNG/SearchSelectIcon.png";
 export { default as TacuruLogoPNG } from "./PNG/TacuruLogo.png";
 export { default as TacuWorkLoginPNG } from "./PNG/TacuWorkLogin.png";

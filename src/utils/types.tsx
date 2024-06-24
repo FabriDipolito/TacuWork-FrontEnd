@@ -167,6 +167,7 @@ export type searchBoxState = {
   comienzoFilter?: Dayjs | null,
   finalizacionFilter?: Dayjs | null,
   filterArray: Array<ColaboradorProps> | Array<PealProps> | Array<EvaluacionProps> | undefined,
+  arrayRanking: Array<ColaboradorProps> | undefined,
 };
 
 export type modalState = {

@@ -137,7 +137,7 @@ export const SelectOptions = styled(MenuItem)(({ theme }) => {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    width: "103px",
+    width: "115px",
     height: "35px",
     paddingLeft: "11px",
     paddingRight: "11px",
@@ -456,5 +456,14 @@ export const SeparatorText = styled(Typography)(({ theme }) => {
     fontSize: "14px",
     fontWeight: theme.customSizes.Modal.input.title.fontWeight,
     color: theme.customPalette.Modal.modal.input.title,
+  };
+});
+
+export const RankingNumeral = styled(Typography)(({ theme }) => {
+  return {
+    fontSize: "12px",
+    fontWeight: theme.customSizes.Modal.input.title.fontWeight,
+    color: theme.customPalette.Modal.modal.input.title,
+    paddingRight: "2px",
   };
 });

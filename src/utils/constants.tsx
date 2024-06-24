@@ -86,6 +86,8 @@ export const PROMEDIO_POR_EVALUACION = "Promedio por Evaluación";
 export const PROYECTO = "Proyecto";
 export const PROYECTOS = "Proyectos";
 export const PUNTUAR = "Puntuar";
+export const RANKING = "Ranking";
+export const RANKING_GENERAL_Y_PEAL = "Ranking General Y por Peal";
 export const REPORTE_DE_EVALUACION = "Reporte de Evaluación";
 export const SE_ELIMINARA_COLABORADOR = "Se eliminará tanto el trabajador como sus evaluaciones";
 export const SE_ELIMINARA_EVALUACION = "Se eliminará tanto la evaluación como las evaluaciones";
@@ -127,6 +129,7 @@ export const ORDEN = [
   'Nonagésima séptima', 'Nonagésima octava', 'Nonagésima novena', 'Centésima'
 ];
 
+export const RANKING_TAGS = ["Nombre Completo", "Peal", "Promedio General", "Comienzo / Finalización", "Estado"];
 export const COLABORADOR_FILTER = ["Nombre de A a Z", "Nombre de Z a A", "Apellido de A a Z", "Apellido de Z a A", "Activos", "Inactivos"];
 export const COLABORADOR_TAGS = ["Nombre", "Apellido", "Peal", "Estado"];
 export const PARTICIPANTES_EVALUACION_FILTER = ["Nombre de A a Z", "Nombre de Z a A", "Apellido de A a Z", "Apellido de Z a A","Mayor Promedio", "Menor Promedio", "Evaluados", "Sin Evaluar"];
