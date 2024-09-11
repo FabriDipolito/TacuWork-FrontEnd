@@ -6,7 +6,7 @@ const withImages = require('next-images');
 const withTM = require('next-transpile-modules')([
   '@nivo/core',
   '@nivo/line', 
-  //'d3-interpolate',
+  'd3-interpolate',
 ]);
 
 const withPlugins = require("next-compose-plugins");
