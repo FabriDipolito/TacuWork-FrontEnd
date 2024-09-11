@@ -11,10 +11,15 @@ import { Header } from "src/components/Header/Header";
 import { NavBar } from "src/components/NavBar/NavBar";
 import { SessionProvider } from "next-auth/react";
 
+interface MyPageProps {
+  session?: any; // Usa el tipo adecuado en lugar de 'any'
+  [key: string]: any; // Permite otras propiedades
+}
+
 function MyApp({
   Component,
   pageProps: { session, ...pageProps },
-}: AppProps): JSX.Element {
+}: AppProps<MyPageProps>): JSX.Element {
   return (
     <>
       <Head>
