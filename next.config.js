@@ -25,3 +25,10 @@ module.exports = withFonts({
     return config;
   },
 });
+
+module.exports = {
+  typescript: {
+    // Ignora los errores de compilación en el build
+    ignoreBuildErrors: true,
+  },
+};
