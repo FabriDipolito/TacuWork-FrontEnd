@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable prettier/prettier */
-import withFonts from 'next-fonts';
-import withImages from 'next-images';
-import withTM from 'next-transpile-modules';
+const withFonts = require('next-fonts');
+const withImages = require('next-images');
+const withTM = require('next-transpile-modules');
 
 const withTMConfig = withTM([
   '@nivo/core',
