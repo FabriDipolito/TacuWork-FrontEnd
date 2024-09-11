@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable prettier/prettier */
-const withFonts = require("next-fonts");
-const withImages = require('next-images');
+import withFonts from 'next-fonts';
+import withImages from 'next-images';
+import withTM from 'next-transpile-modules';
 
-const withTM = require('next-transpile-modules')([
+const withTMConfig = withTM([
   '@nivo/core',
-  '@nivo/line', 
+  '@nivo/bar',
+  '@nivo/line',
   'd3-interpolate',
 ]);
 
-const withPlugins = require("next-compose-plugins");
-
-module.exports = withTM({
+module.exports = withTMConfig({
   reactStrictMode: true,
 });
 

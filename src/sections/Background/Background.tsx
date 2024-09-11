@@ -41,7 +41,7 @@ const Background: React.FC = ({ children }) => {
   };
 
   useEffect(() => {
-    checkSession();
+    //checkSession();
   }, [status, router.pathname]);
 
   useEffect(() => {
