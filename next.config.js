@@ -9,7 +9,9 @@ const withTM = require('next-transpile-modules')([
   'd3-interpolate',
 ]);
 
-module.exports = withTM({
+const withPlugins = require("next-compose-plugins");
+
+module.exports = withPlugins({
   reactStrictMode: true,
 });
 
