@@ -68,6 +68,10 @@ const EncuestasPage: React.FC = () => {
 
   const [hoverButton, setHoverButton] = useState(false);
 
+  interface BarDatum {
+    [key: string]: string | number;
+}
+
   useEffect(() => {
     if (pealSeleccionado) {
       const filteredEncuestas = encuestas?.filter(encuesta => encuesta.peal_id === pealSeleccionado.id);
@@ -192,7 +196,7 @@ const EncuestasPage: React.FC = () => {
                 margin="normal"
               />
             )}
-            renderOption={(props, option, state) => (
+            renderOption={(props: any, option, state) => (
               <div
                 {...props}
                 style={{ width: "100%" }}
@@ -237,7 +241,7 @@ const EncuestasPage: React.FC = () => {
                 </BarTitleContainer>
                 <div style={{ width: "100%", height: "100%" }}>
                   <ResponsiveBar
-                    data={data}
+                    data={data as unknown as any}
                     keys={["darkRed", "red", "lightRed", "orange", "lightOrange", "yellow", "lightLime", "lime", "lightGreen", "green", "darkGreen"]}
                     indexBy="respuesta"
                     margin={{ top: 20, right: 40, bottom: 40, left: 40 }}
