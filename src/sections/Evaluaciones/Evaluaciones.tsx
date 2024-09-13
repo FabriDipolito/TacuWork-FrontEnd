@@ -86,7 +86,7 @@ const EvaluacionesPage: React.FC = () => {
                 margin="normal"
               />
             )}
-            renderOption={(props, option, state) => (
+            renderOption={(props: any, option, state) => (
               <div
                 {...props}
                 style={{ width: "100%" }}
