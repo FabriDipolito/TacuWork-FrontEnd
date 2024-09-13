@@ -43,14 +43,23 @@ import {
   REPORTE_DE_EVALUACION,
   Y,
 } from "@constants";
-import { ResponsiveRadar } from "@nivo/radar";
-import { ResponsiveLine } from "@nivo/line";
+import dynamic from "next/dynamic";
 
 interface modalProps {
   type: "TRABAJADOR" | "PROYECTO" | "COMPARACION";
 }
 
 const ModalPDF: React.FC<modalProps> = ({ type }) => {
+  const ResponsiveRadar = dynamic<any>(
+    () => import("@nivo/radar").then((m) => m.ResponsiveRadar),
+    { loading: () => <p>Loading...</p>, ssr: false },
+  );
+
+  const ResponsiveLine = dynamic<any>(
+    () => import("@nivo/line").then((m) => m.ResponsiveLine),
+    { loading: () => <p>Loading...</p>, ssr: false },
+  );
+
   const dispatch = useAppDispatch();
   const comentario = useAppSelector((state) => state.analisis.comentario);
 

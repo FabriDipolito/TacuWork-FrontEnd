@@ -114,8 +114,9 @@ const AnalisisPage: React.FC = () => {
 
   const ResponsiveRadar = dynamic<any>(
     () => import("@nivo/radar").then((m) => m.ResponsiveRadar),
-    { ssr: false },
+    { loading: () => <p>Loading...</p>, ssr: false },
   );
+  //const ResponsiveRadar = require("@nivo/radar");
 
   const radarData = useAppSelector((state) => state.analisis.radarData);
   const keyArray = useAppSelector((state) => state.analisis.keyArray);
@@ -139,7 +140,7 @@ const AnalisisPage: React.FC = () => {
 
   const ResponsiveLine = dynamic<any>(
     () => import("@nivo/line").then((m) => m.ResponsiveLine),
-    { ssr: false },
+    { loading: () => <p>Loading...</p>, ssr: false },
   );
 
   const lineData = useAppSelector((state) => state.analisis.lineData);
