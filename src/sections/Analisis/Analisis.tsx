@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 
 import dynamic from "next/dynamic";
-import { ResponsiveRadar } from "@nivo/radar";
-import { ResponsiveLine } from "@nivo/line";
+
 import Image from "next/image";
 import {
   AnalisisContainer,
@@ -112,6 +111,12 @@ const AnalisisPage: React.FC = () => {
   const [hoverButton, setHoverButton] = useState(false);
 
   // Radar Grafico
+
+  const ResponsiveRadar = dynamic<any>(
+    () => import("@nivo/radar").then((m) => m.ResponsiveRadar),
+    { ssr: false },
+  );
+
   const radarData = useAppSelector((state) => state.analisis.radarData);
   const keyArray = useAppSelector((state) => state.analisis.keyArray);
 
@@ -130,11 +135,12 @@ const AnalisisPage: React.FC = () => {
   );
   // Radar Grafico
 
-  // Line Grafico
-  // const ResponsiveLine = dynamic(
-  //   () => import("@nivo/line").then((m) => m.ResponsiveLine),
-  //   { ssr: false },
-  // );
+  //Line Grafico
+
+  const ResponsiveLine = dynamic<any>(
+    () => import("@nivo/line").then((m) => m.ResponsiveLine),
+    { ssr: false },
+  );
 
   const lineData = useAppSelector((state) => state.analisis.lineData);
   // Line Grafico

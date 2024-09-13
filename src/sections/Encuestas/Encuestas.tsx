@@ -44,8 +44,7 @@ import {
 } from "src/assests";
 import { DataBarProps, EncuestaProps, PealProps } from "@types";
 import { setActive, setBarData, setPealSelected, setPie1Data, setPie2Data } from "@redux/slices/encuestasSlice";
-import { ResponsiveBar } from "@nivo/bar";
-import { ResponsivePie } from '@nivo/pie'
+import dynamic from "next/dynamic";
 
 const EncuestasPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -68,9 +67,15 @@ const EncuestasPage: React.FC = () => {
 
   const [hoverButton, setHoverButton] = useState(false);
 
-  interface BarDatum {
-    [key: string]: string | number;
-}
+  const ResponsiveBar = dynamic<any>(
+    () => import("@nivo/bar").then((m) => m.ResponsiveBar),
+    { ssr: false },
+  );
+
+  const ResponsivePie = dynamic<any>(
+    () => import("@nivo/pie").then((m) => m.ResponsivePie),
+    { ssr: false },
+  );
 
   useEffect(() => {
     if (pealSeleccionado) {
@@ -241,7 +246,7 @@ const EncuestasPage: React.FC = () => {
                 </BarTitleContainer>
                 <div style={{ width: "100%", height: "100%" }}>
                   <ResponsiveBar
-                    data={data as unknown as any}
+                    data={data}
                     keys={["darkRed", "red", "lightRed", "orange", "lightOrange", "yellow", "lightLime", "lime", "lightGreen", "green", "darkGreen"]}
                     indexBy="respuesta"
                     margin={{ top: 20, right: 40, bottom: 40, left: 40 }}
