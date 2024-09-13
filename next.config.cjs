@@ -18,6 +18,10 @@ module.exports = withTMConfig({
 module.exports = withImages();
 
 module.exports = withFonts({
+  reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -27,10 +31,3 @@ module.exports = withFonts({
     return config;
   },
 });
-
-module.exports = {
-  typescript: {
-    // Ignora los errores de compilación en el build
-    ignoreBuildErrors: true,
-  },
-};
