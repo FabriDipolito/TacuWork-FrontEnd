@@ -11,6 +11,12 @@ const withTMConfig = withTM([
   'd3-interpolate',
 ]);
 
+module.exports = {
+  experimental: {
+    esmExternals: 'loose', // permite tratar dependencias como ESM
+  },
+};
+
 module.exports = withTMConfig({
   reactStrictMode: true,
 });
